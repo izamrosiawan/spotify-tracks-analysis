@@ -7,6 +7,11 @@
 <a name="english"></a>
 ## 🇬🇧 English Version
 
+### 🎯 Business Problem Statement
+In music streaming, user retention is heavily driven by the accuracy and personalization of content recommendation engines. Streaming platforms must understand the intrinsic acoustic characteristics of music and segment tracks effectively to generate high-engagement playlists, while recognizing external marketing drivers of popularity.
+
+---
+
 ### 📌 Executive Summary (30-Second Read)
 * **Objective**: Explored and analyzed **114,000+ tracks** from Spotify to uncover key audio patterns, perform genre segmentation, and predict track popularity using Machine Learning.
 * **Key Findings**:
@@ -21,6 +26,13 @@
   - **Feature-Based Recommendations**: Implement playlist recommendations using cosine similarity on high-performing audio characteristics to match user preferences.
   - **Mood Segmentation**: Utilize the 4 identified clusters to automate mood-based playlist creation (e.g., Chill Acoustic for Cluster 1, Workout Energetic for Cluster 0/3).
   - **A/B Test Recommendations**: Run A/B tests to see if feature-similarity recommendations yield higher click-through rates (CTR) and longer session times compared to purely collaborative-filtering-based suggestions.
+
+---
+
+### 🛡️ Data Quality & Assumptions
+* **Missing Values**: Rows with missing metadata (e.g., track name, artist name, constituting <0.1% of the total dataset) were dropped during data cleaning to ensure data integrity.
+* **Outlier Treatment**: Highly skewed numeric features, such as `duration_ms` and `speechiness`, were normalized using `StandardScaler` to prevent disproportionate scaling from biasing the distance-based K-Means clustering algorithm.
+* **Assumptions**: We assume the acoustic feature metrics extracted by Spotify's API are internally consistent and reflect genuine audio characteristics. We also assume that popularity scores represent global listener preferences.
 
 ---
 
@@ -52,8 +64,34 @@ Predicting popularity via Random Forest reveals that intrinsic audio variables h
 
 ---
 
+### ⚠️ Limitations & Next Steps
+* **Low R² Explanation**: The popularity prediction model achieves an $R^2$ of **15.47%**. This statistical result indicates that a song's intrinsic audio features are *not* the primary drivers of its commercial success. In reality, track popularity is heavily driven by external factors missing from this dataset:
+  - Marketing budget and promotion campaigns.
+  - Artist popularity and social media follower count.
+  - Social media viral trends (e.g., TikTok, Instagram Reels).
+  - Editorial playlist placements (e.g., Spotify's "Today's Top Hits").
+* **Next Steps**:
+  1. Integrate external features such as artist social media followers and release proximity.
+  2. Implement Gradient Boosting models (like XGBoost or LightGBM) to handle potential non-linearities and improve prediction accuracy.
+
+---
+
+### 🔄 Reproducibility
+* **Environment**: Python 3.11.x (pacakge dependencies are listed in [requirements.txt](requirements.txt)).
+* **Execution Sequence**:
+  1. Store the `dataset.csv` file in the `dataset/` directory.
+  2. Open and run all cells in [notebook.ipynb](notebook.ipynb) in sequential order.
+* **Random Seeds**: The random seed `random_state = 42` is explicitly defined for the train-test split and the K-Means clustering algorithm to guarantee identical results across runs.
+
+---
+
 <a name="bahasa-indonesia"></a>
 ## 🇮🇩 Versi Bahasa Indonesia
+
+### 🎯 Business Problem Statement
+Dalam industri streaming musik, retensi pengguna sangat dipengaruhi oleh akurasi dan personalisasi mesin rekomendasi konten. Platform streaming harus memahami karakteristik akustik intrinsik musik dan melakukan segmentasi lagu untuk membuat playlist dengan keterlibatan tinggi, serta mengenali faktor pemasaran eksternal yang memengaruhi popularitas.
+
+---
 
 ### 📌 Ringkasan Eksekutif (30 Detik Baca)
 * **Tujuan**: Mengeksplorasi dan menganalisis **lebih dari 114.000 lagu** dari Spotify untuk mengungkap pola audio utama, segmentasi genre, dan memprediksi popularitas lagu menggunakan Machine Learning.
@@ -69,6 +107,13 @@ Predicting popularity via Random Forest reveals that intrinsic audio variables h
   - **Rekomendasi Berbasis Fitur**: Implementasikan sistem rekomendasi playlist berbasis kemiripan kosinus (cosine similarity) pada karakteristik audio untuk mencocokkan selera pengguna secara spesifik.
   - **Segmentasi Playlist Berbasis Mood**: Gunakan 4 klaster utama untuk mengotomatiskan kurasi playlist berdasarkan suasana hati (misalnya, Chill Acoustic untuk Klaster 1, Workout Energetic untuk Klaster 0/3).
   - **A/B Test Rekomendasi**: Lakukan uji A/B untuk melihat apakah rekomendasi berbasis kemiripan fitur audio menghasilkan tingkat klik (CTR) dan durasi sesi yang lebih tinggi dibanding algoritma kolaboratif murni.
+
+---
+
+### 🛡️ Kualitas Data & Asumsi
+* **Missing Values**: Baris dengan data metadata yang kosong (seperti nama lagu atau nama artis, mencakup <0,1% total dataset) dibuang selama tahap pembersihan untuk menjamin integritas analisis.
+* **Outlier Treatment**: Fitur numerik yang sangat menceng, seperti `duration_ms` dan `speechiness`, dinormalisasi menggunakan `StandardScaler` untuk mencegah bias akibat perbedaan skala pada klasterisasi K-Means yang berbasis jarak.
+* **Asumsi**: Kami mengasumsikan metrik fitur akustik yang diekstrak oleh API Spotify konsisten secara internal dan merepresentasikan karakteristik audio yang sebenarnya. Kami juga mengasumsikan skor popularitas mewakili preferensi pendengar secara global.
 
 ---
 
@@ -97,6 +142,27 @@ Pengelompokan menghasilkan 4 segmen:
 #### 5. Pengaruh Fitur untuk Prediksi
 Model Random Forest menghasilkan skor R² sebesar **15,47%**. Fitur dengan pengaruh terbesar adalah **duration_ms**, **loudness**, dan **acousticness**.
 ![Feature Importance](plots/feature_importances.png)
+
+---
+
+### ⚠️ Keterbatasan & Langkah Selanjutnya
+* **Penjelasan R² Rendah**: Model prediksi popularitas menghasilkan R² sebesar **15,47%**. Hasil statistik ini membuktikan bahwa fitur audio bawaan sebuah lagu *bukanlah* penentu utama popularitasnya. Popularitas lagu di dunia nyata sangat didorong oleh faktor eksternal yang tidak terdapat dalam dataset ini:
+  - Anggaran pemasaran dan kampanye promosi dari label rekaman.
+  - Popularitas artis dan basis pengikut di media sosial.
+  - Tren viral di media sosial (seperti TikTok atau Instagram Reels).
+  - Penempatan di playlist kurasi utama Spotify (misalnya, "Today's Top Hits").
+* **Langkah Selanjutnya**:
+  1. Tambahkan fitur eksternal seperti jumlah pengikut media sosial artis dan tanggal rilis lagu.
+  2. Implementasikan model Gradient Boosting (XGBoost/LightGBM) untuk menangkap pola non-linear dan meningkatkan akurasi prediksi.
+
+---
+
+### 🔄 Reproduksibilitas
+* **Lingkungan**: Python 3.11.x (daftar pustaka di [requirements.txt](requirements.txt)).
+* **Urutan Eksekusi**:
+  1. Simpan file `dataset.csv` ke dalam folder `dataset/`.
+  2. Buka dan jalankan semua cell di [notebook.ipynb](notebook.ipynb) secara berurutan.
+* **Random Seeds**: Nilai seed `random_state = 42` disematkan pada seluruh split data dan pemodelan K-Means untuk menjamin hasil yang konsisten.
 
 ---
 
