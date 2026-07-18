@@ -35,15 +35,15 @@ Dalam industri streaming musik, retensi pengguna sangat dipengaruhi oleh akurasi
 
 #### 1. Sebaran Popularitas Lagu
 Skor popularitas sangat condong ke kiri. Banyak sekali lagu yang memiliki popularitas 0 (lagu baru/kurang dikenal). Sisanya berdistribusi normal di rentang 40-60.
-![Sebaran Popularitas](plots/popularity_distribution.png)
+![Sebaran Popularitas](images/popularity_distribution.png)
 
 #### 2. Matriks Korelasi Fitur Audio
 Korelasi terkuat sebesar **0,76** terjadi antara **energy** dan **loudness**. **Acousticness** memiliki korelasi negatif yang kuat dengan energi (**-0,73**) dan kenyaringan (**-0,59**).
-![Korelasi Fitur](plots/correlation_matrix.png)
+![Korelasi Fitur](images/correlation_matrix.png)
 
 #### 3. Genre Terpopuler
 Pop, rock, dan hip-hop menempati posisi teratas berdasarkan rata-rata popularitas dalam dataset.
-![Top Genres](plots/top_genres_popularity.png)
+![Top Genres](images/top_genres_popularity.png)
 
 #### 4. Pengelompokan K-Means (K=4)
 Pengelompokan menghasilkan 4 segmen:
@@ -51,11 +51,11 @@ Pengelompokan menghasilkan 4 segmen:
 * **Klaster 0 (Loud/Energetic)**: 28,90% lagu. Energi tinggi (0,78) dan *acousticness* rendah (0,10).
 * **Klaster 1 (Acoustic/Slow)**: 22,06% lagu. Keakustikan tinggi (0,80) dan energi rendah (0,29).
 * **Klaster 2 (Instrumental/Ambient)**: 10,83% lagu. Keinstrumentalan tinggi (0,79).
-![Cluster](plots/spotify_clusters.png)
+![Cluster](images/spotify_clusters.png)
 
 #### 5. Pengaruh Fitur untuk Prediksi
 Model Random Forest menghasilkan skor R² sebesar **15,47%**. Fitur dengan pengaruh terbesar adalah **duration_ms**, **loudness**, dan **acousticness**.
-![Feature Importance](plots/feature_importances.png)
+![Feature Importance](images/feature_importances.png)
 
 ---
 
@@ -68,31 +68,3 @@ Model Random Forest menghasilkan skor R² sebesar **15,47%**. Fitur dengan penga
 * **Langkah Selanjutnya**:
   1. Tambahkan fitur eksternal seperti jumlah pengikut media sosial artis dan tanggal rilis lagu.
   2. Implementasikan model Gradient Boosting (XGBoost/LightGBM) untuk menangkap pola non-linear dan meningkatkan akurasi prediksi.
-
----
-
-### 🔄 Reproduksibilitas
-* **Lingkungan**: Python 3.11.x (daftar pustaka di [requirements.txt](requirements.txt)).
-* **Urutan Eksekusi**:
-  1. Simpan file `dataset.csv` ke dalam folder `dataset/`.
-  2. Buka dan jalankan semua cell di [notebook.ipynb](notebook.ipynb) secara berurutan.
-* **Random Seeds**: Nilai seed `random_state = 42` disematkan pada seluruh split data dan pemodelan K-Means untuk menjamin hasil yang konsisten.
-
----
-
-## 🗄️ Dokumentasi Berkas
-* **`dataset/dataset.csv`**: Dataset mentah berisi data lebih dari 114.000 lagu.
-* **`notebook.ipynb`**: Jupyter Notebook utama untuk analisis dan pemodelan.
-* **`requirements.txt`**: Daftar pustaka Python yang digunakan.
-
----
-
-## ⚙️ Persyaratan Sistem & Instalasi
-Instal pustaka Python yang diperlukan:
-```bash
-pip install -r requirements.txt
-```
-Jalankan Jupyter Notebook:
-```bash
-jupyter notebook notebook.ipynb
-```
