@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Tracks Analysis & Popularity Predictor</title>
+    
+    <!-- Google Fonts for premium typography (Plus Jakarta Sans & Outfit) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Chart.js for premium, responsive visualization charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom CSS styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- Fixed Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="brand-container">
+                    <h2 class="brand-title">SPOTIFY</h2>
+                    <span class="brand-subtitle">TRACKS ANALYSER V1.0</span>
+                </div>
+                
+                <div class="sidebar-menu">
+                    <a href="#stats-section" class="sidebar-btn active" id="btn-overview">
+                        <i data-lucide="layout-dashboard" class="menu-icon"></i>
+                        <span>OVERVIEW</span>
+                    </a>
+                    <a href="#predictor-section" class="sidebar-btn" id="btn-predictor">
+                        <i data-lucide="activity" class="menu-icon"></i>
+                        <span>PREDICTOR</span>
+                    </a>
+                    <a href="#clusters-section" class="sidebar-btn" id="btn-clusters">
+                        <i data-lucide="layers" class="menu-icon"></i>
+                        <span>K-MEANS CLUSTERS</span>
+                    </a>
+                    <a href="#analytics-section" class="sidebar-btn" id="btn-analytics">
+                        <i data-lucide="bar-chart-3" class="menu-icon"></i>
+                        <span>ANALYTICS SUITE</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="sidebar-bottom">
+                <div class="sidebar-meta">
+                    <div>WORKSPACE: SPOTIFY_PACIFIC</div>
+                    <div>STATUS: STABLE // ONLINE</div>
+                    <div>DATA PERIOD: 2022 - 2026</div>
+                </div>
+                <div class="sidebar-actions">
+                    <a href="../notebook.ipynb" class="btn btn-notebook" target="_blank">Notebook (.IPYNB)</a>
+                    <button id="dark-mode-toggle" class="btn-theme-toggle" title="Toggle Tema Gelap/Terang">
+                        <i data-lucide="moon" id="theme-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area (Right Side) -->
+        <div class="main-content">
+            
+            <!-- High-Tech Top Status Bar -->
+            <div class="top-status-bar">
+                <div class="status-left">
+                    <span class="pulse-dot"></span>
+                    <span>LIVE NETWORK: ACTIVE</span>
+                </div>
+                <div class="status-center">WORKSPACE: SPOTIFY_TRACKS // ANALYTICS_ACTIVE</div>
+                <div class="status-right" id="status-date">DATE: 18-JUL-2026 // UTC+07:00</div>
+            </div>
+
+            <!-- Workspace Wrapper -->
+            <div class="workspace-wrapper">
+                
+                <!-- Workspace Header -->
+                <header class="workspace-header">
+                    <div class="header-left">
+                        <span class="manifest-id">MANIFEST ID: SP-2026-07</span>
+                        <h1 class="workspace-title">EXECUTIVE PERFORMANCE OVERVIEW</h1>
+                        <p class="workspace-subtitle">Analisis Interaktif Karakteristik Audio & Model Prediksi Popularitas Regional</p>
+                    </div>
+                </header>
+
+                <!-- KPI Stats Cards Section -->
+                <section id="stats-section" class="section stats-section">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="card-header-row">
+                                <span class="stat-label">Total Lagu Dihitung</span>
+                                <div class="card-icon-box bg-blue">
+                                    <i data-lucide="users" class="card-icon"></i>
+                                </div>
+                            </div>
+                            <span class="stat-value">89,740</span>
+                            <span class="stat-desc">Data bersih dan duplikat terhapus</span>
+                        </div>
+                        <div class="stat-card">
+                            <div class="card-header-row">
+                                <span class="stat-label">Model R² Accuracy</span>
+                                <div class="card-icon-box bg-red">
+                                    <i data-lucide="trending-up" class="card-icon"></i>
+                                </div>
+                            </div>
+                            <span class="stat-value">15.47%</span>
+                            <span class="stat-desc warning-text">
+                                Bobot audio intrinsik memprediksi popularitas secara terbatas.
+                                <i data-lucide="info" class="info-icon" title="R² sebesar 15.47% membuktikan bahwa fitur akustik intrinsik lagu (seperti danceability, loudness, dll) memiliki pengaruh terbatas pada popularitas lagu. 84.5% sisa variansi popularitas dipengaruhi faktor eksternal seperti kampanye pemasaran label, kepopuleran artis, tren viral TikTok, dan kurasi playlist utama."></i>
+                            </span>
+                        </div>
+                        <div class="stat-card">
+                            <div class="card-header-row">
+                                <span class="stat-label">Dimensi Fitur Audio</span>
+                                <div class="card-icon-box bg-green">
+                                    <i data-lucide="check-circle" class="card-icon"></i>
+                                </div>
+                            </div>
+                            <span class="stat-value">12 Fitur</span>
+                            <span class="stat-desc">Karakteristik intrinsik Spotify API</span>
+                        </div>
+                        <div class="stat-card">
+                            <div class="card-header-row">
+                                <span class="stat-label">Kelompok Musik K-Means</span>
+                                <div class="card-icon-box bg-grey">
+                                    <span class="card-text-badge">MODERAT</span>
+                                </div>
+                            </div>
+                            <span class="stat-value">4 Klaster</span>
+                            <span class="stat-desc">Segmentasi otomatis berdasarkan mood</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Predictor & Song Classifier Section -->
+                <section id="predictor-section" class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Prediktor Popularitas & Klasifikasi Klaster</h2>
+                        <p class="section-desc">Atur parameter audio lagu di bawah ini untuk melihat hasil prediksi popularitas dan pengelompokan klasternya secara real-time, atau pilih salah satu lagu contoh dari dataset.</p>
+                    </div>
+
+                    <div class="predictor-grid">
+                        <!-- Left Column: Input Sliders & Preset Selector -->
+                        <div class="predictor-card-inputs">
+                            <div class="preset-container">
+                                <label for="song-search" class="input-label">Pilih Lagu Contoh dari Dataset:</label>
+                                <div class="search-box">
+                                    <i data-lucide="search" class="search-icon"></i>
+                                    <input type="text" id="song-search" placeholder="Cari berdasarkan judul lagu atau artis..." autocomplete="off">
+                                    <div id="search-results" class="search-results-dropdown hidden"></div>
+                                </div>
+                            </div>
+
+                            <div class="sliders-grid">
+                                <!-- Group 1: General Features -->
+                                <div class="slider-group">
+                                    <h3 class="group-title">Dimensi Umum</h3>
+                                    
+                                    <div class="slider-item">
+                                        <div class="slider-header">
+                                            <label class="slider-label">Duration (Durasi)</label>
+                                            <span id="val-duration_ms" class="slider-value">3:30</span>
+                                        </div>
+                                        <input type="range" id="duration_ms" min="30000" max="600000" step="1000" value="210000" class="input-slider">
+                                    </div>
+
+                                    <div class="slider-item">
+                                        <div class="slider-header">
+                                            <label class="slider-label">Tempo (BPM)</label>
+                                            <span id="val-tempo" class="slider-value">120 BPM</span>
+                                        </div>
+                                        <input type="range" id="tempo" min="50" max="220" step="1" value="120" class="input-slider">
+                                    </div>
+
+                                    <div class="slider-item">
+                                        <div class="slider-header">
+                                            <label class="slider-label">Loudness (Volume)</label>
+                                            <span id="val-loudness" class="slider-value">-8.0 dB</span>
+                                        </div>
+                                        <input type="range" id="loudness" min="-40" max="0" step="0.1" value="-8.0" class="input-slider">
+                                    </div>
+
+                                    <div class="slider-item">
+                                        <div class="slider-header">
+                                            <label class="slider-label">Key & Mode</label>
+                                            <span id="val-key-mode" class="slider-value">C Major</span>
+                                        </div>
+                                        <div class="flex-row">
+                                            <select id="key" class="select-input">
+                                                <option value="0">C</option>
+                                                <option value="1">C# / D♭</option>
+                                                <option value="2">D</option>
+                                                <option value="3">D# / E♭</option>
+                                                <option value="4">E</option>
+                                                <option value="5">F</option>
+                                                <option value="6">F# / G♭</option>
+                                                <option value="7">G</option>
+                                                <option value="8">G# / A♭</option>
+                                                <option value="9">A</option>
+                                                <option value="10">A# / B♭</option>
+                                                <option value="11">B</option>
+                                            </select>
+                                            <select id="mode" class="select-input">
+                                                <option value="1">Mayor</option>
+                                                <option value="0">Minor</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Group 2: Audio Dynamics (K-Means features highlighted) -->
+                                <div class="slider-group">
+                                    <h3 class="group-title">Dinamika Audio</h3>
+
+                                    <div class="slider-item highlight-item">
+                                        <div class="slider-header">
+                                            <label class="slider-label">Danceability <span class="tag-cluster">K-Means</span></label>
+                                            <span id="val-danceability" class="slider-value">0.60</span>
+                                        </div>
+                                        <input type="range" id="danceability" min="0" max="1" step="0.01" value="0.60" class="input-slider">
+                                    </div>
+
+                                    <div class="slider-item highlight-item">
+                                        <div class="slider-header">
+                                            <label class="slider-label">Energy <span class="tag-cluster">K-Means</span></label>
+                                            <span id="val-energy" class="slider-value">0.65</span>
+                                        </div>
+                                        <input type="range" id="energy" min="0" max="1" step="0.01" value="0.65" class="input-slider">
+                                    </div>
+
+                                    <div class="slider-item highlight-item">
+                                        <div class="slider-header">
+                                            <label class="slider-label">Acousticness <span class="tag-cluster">K-Means</span></label>
+                                            <span id="val-acousticness" class="slider-value">0.20</span>
+                                        </div>
+                                        <input type="range" id="acousticness" min="0" max="1" step="0.01" value="0.20" class="input-slider">
+                                    </div>
+
+                                    <div class="slider-item highlight-item">
+                                        <div class="slider-header">
+                                            <label class="slider-label">Instrumentalness <span class="tag-cluster">K-Means</span></label>
+                                            <span id="val-instrumentalness" class="slider-value">0.05</span>
+                                        </div>
+                                        <input type="range" id="instrumentalness" min="0" max="1" step="0.01" value="0.05" class="input-slider">
+                                    </div>
+
+                                    <div class="slider-item highlight-item">
+                                        <div class="slider-header">
+                                            <label class="slider-label">Valence (Keceriaan) <span class="tag-cluster">K-Means</span></label>
+                                            <span id="val-valence" class="slider-value">0.50</span>
+                                        </div>
+                                        <input type="range" id="valence" min="0" max="1" step="0.01" value="0.50" class="input-slider">
+                                    </div>
+                                </div>
+
+                                <!-- Group 3: Performance Features -->
+                                <div class="slider-group full-width-group">
+                                    <h3 class="group-title">Performa Rekaman</h3>
+                                    
+                                    <div class="slider-item">
+                                        <div class="slider-header">
+                                            <label class="slider-label">Speechiness (Vokal Kata)</label>
+                                            <span id="val-speechiness" class="slider-value">0.08</span>
+                                        </div>
+                                        <input type="range" id="speechiness" min="0" max="1" step="0.01" value="0.08" class="input-slider">
+                                    </div>
+
+                                    <div class="slider-item">
+                                        <div class="slider-header">
+                                            <label class="slider-label">Liveness (Kehadiran Penonton)</label>
+                                            <span id="val-liveness" class="slider-value">0.15</span>
+                                        </div>
+                                        <input type="range" id="liveness" min="0" max="1" step="0.01" value="0.15" class="input-slider">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Interactive Live Prediction Results -->
+                        <div class="predictor-card-results">
+                            <!-- Predicted Popularity Gauge -->
+                            <div class="result-gauge-card">
+                                <h3 class="result-card-title">Prediksi Popularitas Lagu</h3>
+                                <div class="gauge-wrapper">
+                                    <div class="gauge-outer">
+                                        <div id="gauge-progress" class="gauge-inner"></div>
+                                        <div class="gauge-center">
+                                            <span id="pred-popularity-value" class="gauge-score">--</span>
+                                            <span class="gauge-max">/ 100</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="gauge-description">Berdasarkan model Ridge Regression yang dilatih dengan parameter audio intrinsik.</p>
+                            </div>
+
+                            <!-- Assigned Cluster Details Card -->
+                            <div id="assigned-cluster-card" class="result-cluster-card">
+                                <h3 class="result-card-title">Klasifikasi Klaster K-Means</h3>
+                                <div class="cluster-badge-container">
+                                    <span id="cluster-number-badge" class="cluster-id-badge">Klaster --</span>
+                                    <h4 id="cluster-name-title" class="cluster-name-title">Menghitung...</h4>
+                                </div>
+                                <p id="cluster-desc-text" class="cluster-desc-text">Mengisi data...</p>
+                                
+                                <div class="cluster-fit-section">
+                                    <span class="sub-label">Profil Karakteristik Klaster:</span>
+                                    <div class="fit-bars-container">
+                                        <div class="fit-bar-item">
+                                            <div class="bar-header">
+                                                <span>Danceability</span>
+                                                <span id="profile-val-dance">0.00</span>
+                                            </div>
+                                            <div class="bar-track"><div id="profile-bar-dance" class="bar-fill"></div></div>
+                                        </div>
+                                        <div class="fit-bar-item">
+                                            <div class="bar-header">
+                                                <span>Energy</span>
+                                                <span id="profile-val-energy">0.00</span>
+                                            </div>
+                                            <div class="bar-track"><div id="profile-bar-energy" class="bar-fill"></div></div>
+                                        </div>
+                                        <div class="fit-bar-item">
+                                            <div class="bar-header">
+                                                <span>Acousticness</span>
+                                                <span id="profile-val-acoustic">0.00</span>
+                                            </div>
+                                            <div class="bar-track"><div id="profile-bar-acoustic" class="bar-fill"></div></div>
+                                        </div>
+                                        <div class="fit-bar-item">
+                                            <div class="bar-header">
+                                                <span>Instrumentalness</span>
+                                                <span id="profile-val-instrumental">0.00</span>
+                                            </div>
+                                            <div class="bar-track"><div id="profile-bar-instrumental" class="bar-fill"></div></div>
+                                        </div>
+                                        <div class="fit-bar-item">
+                                            <div class="bar-header">
+                                                <span>Valence</span>
+                                                <span id="profile-val-valence">0.00</span>
+                                            </div>
+                                            <div class="bar-track"><div id="profile-bar-valence" class="bar-fill"></div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- K-Means Cluster Explorer Section -->
+                <section id="clusters-section" class="section bg-card">
+                    <div class="section-header">
+                        <h2 class="section-title">Eksplorasi Klaster K-Means (K=4)</h2>
+                        <p class="section-desc">Pahami keempat segmentasi lagu yang didapatkan dari algoritma clustering data tidak berlabel (unsupervised learning) Spotify.</p>
+                    </div>
+
+                    <!-- Cluster Cards Grid Selection -->
+                    <div class="cluster-tabs">
+                        <button class="cluster-tab-btn active" data-cluster="0">
+                            <span class="tab-dot dot-cluster-0"></span>
+                            <span class="tab-label">Klaster 0: Dance/Party</span>
+                        </button>
+                        <button class="cluster-tab-btn" data-cluster="1">
+                            <span class="tab-dot dot-cluster-1"></span>
+                            <span class="tab-label">Klaster 1: Loud/Energetic</span>
+                        </button>
+                        <button class="cluster-tab-btn" data-cluster="2">
+                            <span class="tab-dot dot-cluster-2"></span>
+                            <span class="tab-label">Klaster 2: Acoustic/Slow</span>
+                        </button>
+                        <button class="cluster-tab-btn" data-cluster="3">
+                            <span class="tab-dot dot-cluster-3"></span>
+                            <span class="tab-label">Klaster 3: Instrumental/Ambient</span>
+                        </button>
+                    </div>
+
+                    <div class="cluster-details-box">
+                        <div class="cluster-info-col">
+                            <div class="cluster-meta">
+                                <h3 id="explorer-cluster-title" class="explorer-title">Klaster 0: Dance/Party</h3>
+                                <span id="explorer-cluster-portion" class="badge-portion">38.2% dari Dataset</span>
+                            </div>
+                            <p id="explorer-cluster-desc" class="explorer-desc">Klaster ini didominasi oleh lagu-lagu dengan ritme yang ceria (valence tinggi), ketukan yang asyik untuk bergoyang (danceability tinggi), serta energi audio yang memadai. Sangat cocok sebagai pengisi playlist pesta dan musik disko.</p>
+                            
+                            <div class="cluster-songs-list-container">
+                                <h4 class="songs-list-title"><i data-lucide="music" class="icon-small"></i> Contoh Lagu Populer di Klaster Ini:</h4>
+                                <div id="explorer-songs-list" class="songs-list">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cluster-radar-col">
+                            <h4 class="chart-box-title">Visualisasi Profil Akustik Klaster</h4>
+                            <div class="chart-canvas-container-small">
+                                <canvas id="clusterProfileChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Analytics Suite -->
+                <section id="analytics-section" class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Visual Analytics Suite</h2>
+                        <p class="section-desc">Eksplorasi korelasi, wawasan genre, serta pengaruh masing-masing parameter audio yang diambil dari model analitik.</p>
+                    </div>
+
+                    <div class="analytics-grid">
+                        <!-- Chart 1: Feature Importances -->
+                        <div class="analytics-card">
+                            <h3 class="chart-title">Pengaruh Fitur Audio Terhadap Popularitas Lagu</h3>
+                            <p class="chart-subtitle">Diambil dari bobot feature importance model Machine Learning Random Forest.</p>
+                            <div class="chart-canvas-container">
+                                <canvas id="featureImportanceChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 2: Top Popular Genres -->
+                        <div class="analytics-card">
+                            <h3 class="chart-title">15 Genre Musik Terpopuler (Rata-rata Popularitas)</h3>
+                            <p class="chart-subtitle">Hanya menghitung genre dengan jumlah lagu di atas 100 untuk data yang representatif.</p>
+                            <div class="chart-canvas-container">
+                                <canvas id="topGenresChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 3: Correlation Matrix Heatmap -->
+                        <div class="analytics-card full-width-card">
+                            <h3 class="chart-title">Matriks Korelasi Fitur Akustik & Popularitas</h3>
+                            <p class="chart-subtitle">Menampilkan kekuatan hubungan linear (-1.00 sampai +1.00) antar variabel. Arahkan kursor Anda pada sel tabel untuk membaca analisis interaksinya.</p>
+                            
+                            <div class="heatmap-container">
+                                <!-- Heatmap table grid generated dynamically by JS -->
+                                <div id="correlation-heatmap" class="correlation-heatmap"></div>
+                            </div>
+                            
+                            <div id="correlation-tooltip-box" class="correlation-tooltip-box">
+                                <i data-lucide="help-circle" class="tooltip-box-icon"></i>
+                                <span id="correlation-tooltip-text">Arahkan kursor pada salah satu sel matriks korelasi untuk melihat analisis detailnya.</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sleek Apple style Footer -->
+                <footer class="footer">
+                    <div class="footer-container">
+                        <p class="footer-text">&copy; 2026 Proyek Analisis Spotify Tracks. Dibuat dengan presisi dan estetika minimalis.</p>
+                        <div class="footer-meta">
+                            <span>Model: Ridge Regression & Random Forest (R² = 15.47%)</span>
+                            <span>Clustering: K-Means (K=4)</span>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Data and Dashboard Interactivity engine -->
+    <script src="dashboard_data.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
