@@ -65,6 +65,3 @@ Model Random Forest menghasilkan skor R² sebesar **15,47%**. Fitur dengan penga
   - Popularitas artis dan basis pengikut di media sosial.
   - Tren viral di media sosial (seperti TikTok atau Instagram Reels).
   - Penempatan di playlist kurasi utama Spotify (misalnya, "Today's Top Hits").
-* **Langkah Selanjutnya**:
-  1. Tambahkan fitur eksternal seperti jumlah pengikut media sosial artis dan tanggal rilis lagu.
-  2. Implementasikan model Gradient Boosting (XGBoost/LightGBM) untuk menangkap pola non-linear dan meningkatkan akurasi prediksi.
