@@ -1,4 +1,4 @@
-# Spotify Tracks Audio Features Analysis & Genre Profiling
+﻿# Spotify Tracks Audio Features Analysis & Genre Profiling
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
 [![Pandas](https://img.shields.io/badge/Pandas-Analytics-orange.svg)](https://pandas.pydata.org/)
@@ -9,7 +9,7 @@ Repositori ini menyajikan analisis komprehensif terhadap karakteristik audio lag
 
 ---
 
-## 📂 Struktur Proyek
+## Struktur Proyek
 
 ```
 ├── .gitignore          # Konfigurasi pengabaian cache Git
@@ -25,7 +25,7 @@ Repositori ini menyajikan analisis komprehensif terhadap karakteristik audio lag
 
 ---
 
-## 💻 Implementasi Modular & Pengujian Otomatis
+## Implementasi Modular & Pengujian Otomatis
 
 Modul audio analyzer tersedia di `src/audio_analyzer.py`:
 
@@ -44,7 +44,7 @@ pytest tests/
 
 ---
 
-## 🚀 Cara Menjalankan
+## Cara Menjalankan
 
 1. **Pasang Dependensi**:
    ```bash
@@ -58,3 +58,4 @@ pytest tests/
 
 ---
 *Spotify Tracks Audio Analytics Project.*
+
