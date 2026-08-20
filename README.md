@@ -75,7 +75,7 @@ Pola sebaran kenyaringan suara dan energi pada genre populer.
 ![Energy vs Loudness](images/energy_vs_loudness.png)
 ![Danceability per Genre](images/genre_danceability.png)
 
-*   **Pembahasan**: Genre modern (Latin, Reggaeton, Pop) menempati kuadran kanan atas dengan *danceability* rata-rata $>0.70$ dan *loudness* tinggi ($-6$ dB), sedangkan genre klasik/akustik berada di kuadran kiri bawah.
+*   **Pembahasan**: Genre modern (Latin, Reggaeton, Pop) menempati kuadran kanan atas dengan *danceability* rata-rata >0.70 dan *loudness* tinggi (-6 dB), sedangkan genre klasik/akustik berada di kuadran kiri bawah.
 
 ### C. Segmentasi Klaster Profil Musik & Feature Importance
 Hasil pengelompokan trek lagu menggunakan K-Means dan pemeringkatan fitur prediktor popularitas.
@@ -108,7 +108,7 @@ pytest tests/
 
 ## 6. Rekomendasi Bisnis untuk Kurator & Label Musik
 
-1. **Formula Produksi Lagu Komersil**: Lagu komersil modern berpeluang masuk Top Playlist jika memiliki *danceability* $\ge 0.65$, *energy* $\ge 0.70$, dan *loudness* berada di kisaran $-7$ hingga $-4$ dB.
+1. **Formula Produksi Lagu Komersil**: Lagu komersil modern berpeluang masuk Top Playlist jika memiliki *danceability* >= 0.65, *energy* >= 0.70, dan *loudness* berada di kisaran -7 hingga -4 dB.
 2. **Personalisasi Playlist Mood**: Kurasi playlist berbasis *valence* dan *tempo* terbukti lebih efektif meningkatkan durasi mendengarkan (*listening session length*) dibanding sekadar segmentasi genre konvensional.
 3. **Automasi Filter Rilisan Baru**: Platform streaming dapat memanfaatkan klaster audio untuk mengarahkan rilisan baru artis indie langsung ke pendengar niche yang relevan secara otomatis.
 
