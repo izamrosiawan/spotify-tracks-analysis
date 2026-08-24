@@ -437,14 +437,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  updateSliderLabels();
-  calculatePrediction();
-  renderClusterProfile(0);
-  buildAnalyticsCharts();
-  renderCorrelationHeatmap();
+  function initDashboard() {
+    updateSliderLabels();
+    calculatePrediction();
+    renderClusterProfile(0);
+    buildAnalyticsCharts();
+    renderCorrelationHeatmap();
+    renderAllKaTeX();
+  }
 
-  renderAllKaTeX();
-  setTimeout(renderAllKaTeX, 200);
-  setTimeout(renderAllKaTeX, 600);
-  window.addEventListener('load', renderAllKaTeX);
+  // Self-healing initialization with immediate + polling fallbacks
+  initDashboard();
+  let retryCount = 0;
+  const initInterval = setInterval(() => {
+    retryCount++;
+    if (window.dashboardData && window.dashboardData.corr_data) {
+      initDashboard();
+      clearInterval(initInterval);
+    } else if (retryCount > 20) {
+      clearInterval(initInterval);
+    }
+  }, 100);
+
+  setTimeout(initDashboard, 250);
+  setTimeout(initDashboard, 750);
+  window.addEventListener('load', initDashboard);
 });
