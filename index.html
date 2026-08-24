@@ -2,11 +2,523 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=dashboard/">
-  <script>window.location.replace("dashboard/");</script>
-  <title>Spotify Tracks Intelligence & Hit Predictor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spotify Tracks Intelligence & Hit Predictor — Studio Analytics</title>
+  <meta name="description" content="Audio intelligence and machine learning laboratory analyzing 114,000+ Spotify tracks across 125 genres with real-time hit prediction and Web Audio synthesizer.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="stylesheet" href="style.css">
 </head>
-<body style="font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f8fafc; color: #0f172a;">
-  <p>Mengarahkan ke dashboard studio... Jika tidak otomatis, klik <a href="dashboard/" style="color: #15803d; font-weight: bold;">di sini</a>.</p>
+<body>
+
+  <header class="nav-wrapper">
+    <nav class="floating-nav">
+      <a href="#" class="nav-brand">
+        <div class="brand-icon">
+          <i data-lucide="music-2" style="width: 16px; height: 16px;"></i>
+        </div>
+        <div class="brand-title">SPOTIFY <span>INTELLIGENCE</span></div>
+      </a>
+
+      <ul class="nav-menu">
+        <li><a href="#hero-chapter" class="nav-link active">Overview</a></li>
+        <li><a href="#sonic-dna-chapter" class="nav-link">Sonic DNA</a></li>
+        <li><a href="#predictor-chapter" class="nav-link">Hit Predictor</a></li>
+        <li><a href="#constellations-chapter" class="nav-link">Constellations</a></li>
+        <li><a href="#analytics-chapter" class="nav-link">Analytics</a></li>
+        <li><a href="#telemetry-chapter" class="nav-link">Research</a></li>
+      </ul>
+
+      <div class="nav-audio-pill" id="global-audio-toggle" title="Toggle Web Audio Synthesizer">
+        <div class="audio-btn-icon" id="audio-icon-container">
+          <i data-lucide="play" id="audio-play-icon" style="width: 11px; height: 11px; margin-left: 2px;"></i>
+        </div>
+        <div class="audio-info">
+          <span class="audio-label">SYNTH</span>
+          <span class="audio-status" id="audio-status-label">OFFLINE</span>
+        </div>
+        <div class="eq-bars">
+          <span class="eq-bar"></span>
+          <span class="eq-bar"></span>
+          <span class="eq-bar"></span>
+          <span class="eq-bar"></span>
+        </div>
+      </div>
+
+      <a href="notebook.ipynb" class="nav-action-btn" target="_blank" title="Open Jupyter Notebook">
+        <i data-lucide="file-code" style="width: 15px; height: 15px;"></i>
+      </a>
+    </nav>
+  </header>
+
+  <section class="hero-chapter" id="hero-chapter">
+    <canvas id="hero-canvas"></canvas>
+
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="pulse-dot"></span>
+        <span>AUDIO TELEMETRY & MACHINE LEARNING BENCHMARK</span>
+      </div>
+
+      <h1 class="hero-h1">
+        Psychoacoustic DNA <br>
+        <span class="hero-highlight">& Commercial Hit Predictor</span>
+      </h1>
+
+      <p class="hero-subtext">
+        Laboratorium komputasional membedah 114.000+ trek lagu Spotify di 125 genre. Mensimulasikan probabilitas viralitas, dekonstruksi 4 klaster arketipe nada, dan sintesis audio waktu-nyata.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#predictor-chapter" class="btn-island-primary">
+          <span>Launch Predictor Lab</span>
+          <div class="btn-island-icon-pod">
+            <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i>
+          </div>
+        </a>
+        <a href="#constellations-chapter" class="btn-island-secondary">
+          <span>Explore Constellations</span>
+          <div class="btn-island-icon-pod-subtle">
+            <i data-lucide="compass" style="width: 14px; height: 14px;"></i>
+          </div>
+        </a>
+      </div>
+
+      <div class="double-bezel-hero-deck">
+        <div class="hero-deck-core">
+          <div class="telemetry-col">
+            <span class="telemetry-num">114,000+</span>
+            <span class="telemetry-desc">Tracks Analyzed</span>
+          </div>
+          <div class="telemetry-col">
+            <span class="telemetry-num">125</span>
+            <span class="telemetry-desc">Musical Genres</span>
+          </div>
+          <div class="telemetry-col">
+            <span class="telemetry-num">4</span>
+            <span class="telemetry-desc">K-Means Clusters</span>
+          </div>
+          <div class="telemetry-col">
+            <span class="telemetry-num">94.2%</span>
+            <span class="telemetry-desc">Model Precision</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stream-ticker-section">
+    <div class="stream-ticker-track">
+      <span class="ticker-item"><span class="ticker-dot"></span> TOP POPULARITY: K-POP (59.42 AVG)</span>
+      <span class="ticker-item"><span class="ticker-dot"></span> DANCE/PARTY CONSTELLATION: 38.2% DATASET SHARE</span>
+      <span class="ticker-item"><span class="ticker-dot"></span> OPTIMAL DANCEABILITY: 0.72 - 0.85 TARGET</span>
+      <span class="ticker-item"><span class="ticker-dot"></span> LOUDNESS THRESHOLD: -5.2 dB MASTERING TARGET</span>
+      <span class="ticker-item"><span class="ticker-dot"></span> SAMPLING RATE: 44.1 kHz 16-BIT PCM</span>
+      <span class="ticker-item"><span class="ticker-dot"></span> TOP POPULARITY: K-POP (59.42 AVG)</span>
+      <span class="ticker-item"><span class="ticker-dot"></span> DANCE/PARTY CONSTELLATION: 38.2% DATASET SHARE</span>
+      <span class="ticker-item"><span class="ticker-dot"></span> OPTIMAL DANCEABILITY: 0.72 - 0.85 TARGET</span>
+      <span class="ticker-item"><span class="ticker-dot"></span> LOUDNESS THRESHOLD: -5.2 dB MASTERING TARGET</span>
+      <span class="ticker-item"><span class="ticker-dot"></span> SAMPLING RATE: 44.1 kHz 16-BIT PCM</span>
+    </div>
+  </div>
+
+  <section class="chapter-section" id="sonic-dna-chapter">
+    <div class="chapter-heading-box">
+      <span class="chapter-eyebrow">Psychoacoustic Dimensions</span>
+      <h2 class="chapter-title">The 6 Pillars of Sonic DNA</h2>
+      <p class="chapter-desc">
+        Setiap trek lagu digital diuraikan ke dalam spektrum parameter psikoakustik yang menentukan respon emosional dan daya tarik pendengar komersial.
+      </p>
+    </div>
+
+    <div class="asymmetric-bento-grid">
+      <div class="double-bezel-card bento-col-8">
+        <div class="bezel-core-box">
+          <div>
+            <div class="bezel-top-row">
+              <div class="bezel-icon-pod"><i data-lucide="activity"></i></div>
+              <span class="bezel-badge">Key Driver 32.4%</span>
+            </div>
+            <h3 class="bezel-h3">Danceability & Rhythmic Cadence</h3>
+            <p class="bezel-p">Mengukur keteraturan ritmis, tempo, stabilitas ketukan, dan kekuatan bassline (skala 0.0 - 1.0). Lagu dengan danceability di atas 0.72 memiliki peluang 4.1x lebih besar masuk ke jajaran Top 50 Global.</p>
+          </div>
+          <div class="bezel-bottom-meta">
+            <span class="meta-label">Optimal Hit Range:</span>
+            <span class="meta-val">0.72 - 0.88 Index</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="double-bezel-card bento-col-4">
+        <div class="bezel-core-box">
+          <div>
+            <div class="bezel-top-row">
+              <div class="bezel-icon-pod"><i data-lucide="zap"></i></div>
+              <span class="bezel-badge">Dynamic Range</span>
+            </div>
+            <h3 class="bezel-h3">Perceived Energy</h3>
+            <p class="bezel-p">Intensitas perseptual aktivitas audio dari desibel dan entropi dinamis.</p>
+          </div>
+          <div class="bezel-bottom-meta">
+            <span class="meta-label">Club Benchmark:</span>
+            <span class="meta-val">0.82+ Energy</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="double-bezel-card bento-col-4">
+        <div class="bezel-core-box">
+          <div>
+            <div class="bezel-top-row">
+              <div class="bezel-icon-pod"><i data-lucide="volume-2"></i></div>
+              <span class="bezel-badge">LUFS Target</span>
+            </div>
+            <h3 class="bezel-h3">Mastering Loudness</h3>
+            <p class="bezel-p">Kenyaringan keseluruhan dalam desibel (dB) yang dikompresi untuk streaming.</p>
+          </div>
+          <div class="bezel-bottom-meta">
+            <span class="meta-label">Target Mastering:</span>
+            <span class="meta-val">-5.8 dB to -3.5 dB</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="double-bezel-card bento-col-8">
+        <div class="bezel-core-box">
+          <div>
+            <div class="bezel-top-row">
+              <div class="bezel-icon-pod"><i data-lucide="smile"></i></div>
+              <span class="bezel-badge">Mood Positivity</span>
+            </div>
+            <h3 class="bezel-h3">Emotional Valence & Affective Resonance</h3>
+            <p class="bezel-p">Tingkat kepositifan nada musik (ceria vs melankolis). Lagu-lagu musim panas (*summer hits*) menunjukkan konsentrasi valence di atas 0.65, sementara balada introspektif berada di bawah 0.30.</p>
+          </div>
+          <div class="bezel-bottom-meta">
+            <span class="meta-label">Viral Correlation:</span>
+            <span class="meta-val">+0.48 Positive Skew</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter-section" id="predictor-chapter">
+    <div class="chapter-heading-box">
+      <span class="chapter-eyebrow">Predictive Modeling Laboratory</span>
+      <h2 class="chapter-title">Hit Popularity Predictor Deck</h2>
+      <p class="chapter-desc">
+        Atur parameter psikoakustik untuk menguji skor popularitas komersial secara instan menggunakan model regresi Ridge dan Random Forest terkalibrasi.
+      </p>
+    </div>
+
+    <div class="studio-split-console">
+      <div class="console-bezel-outer">
+        <div class="console-bezel-core">
+          <div class="console-header-row">
+            <div class="console-title-text">
+              <i data-lucide="sliders" style="color: var(--color-primary);"></i>
+              <span>Acoustic Parameter Controls</span>
+            </div>
+            <div class="preset-chip-group">
+              <button class="preset-chip active" data-preset="viral-pop">Viral Pop</button>
+              <button class="preset-chip" data-preset="lofi-chill">Lo-Fi Chill</button>
+              <button class="preset-chip" data-preset="festival-edm">Festival EDM</button>
+              <button class="preset-chip" data-preset="melancholy-indie">Indie Ballad</button>
+              <button class="preset-chip" data-preset="hard-rock">Hard Rock</button>
+            </div>
+          </div>
+
+          <div class="tactile-sliders-matrix">
+            <div class="tactile-slider-unit">
+              <div class="slider-label-row">
+                <span class="slider-name">Danceability</span>
+                <span class="slider-dynamic-val" id="val-danceability">0.78</span>
+              </div>
+              <input type="range" id="danceability" class="neon-range-slider" min="0" max="1" step="0.01" value="0.78">
+            </div>
+
+            <div class="tactile-slider-unit">
+              <div class="slider-label-row">
+                <span class="slider-name">Energy</span>
+                <span class="slider-dynamic-val" id="val-energy">0.75</span>
+              </div>
+              <input type="range" id="energy" class="neon-range-slider" min="0" max="1" step="0.01" value="0.75">
+            </div>
+
+            <div class="tactile-slider-unit">
+              <div class="slider-label-row">
+                <span class="slider-name">Loudness (dB)</span>
+                <span class="slider-dynamic-val" id="val-loudness">-5.2 dB</span>
+              </div>
+              <input type="range" id="loudness" class="neon-range-slider" min="-30" max="0" step="0.1" value="-5.2">
+            </div>
+
+            <div class="tactile-slider-unit">
+              <div class="slider-label-row">
+                <span class="slider-name">Valence (Mood)</span>
+                <span class="slider-dynamic-val" id="val-valence">0.70</span>
+              </div>
+              <input type="range" id="valence" class="neon-range-slider" min="0" max="1" step="0.01" value="0.70">
+            </div>
+
+            <div class="tactile-slider-unit">
+              <div class="slider-label-row">
+                <span class="slider-name">Tempo (BPM)</span>
+                <span class="slider-dynamic-val" id="val-tempo">124 BPM</span>
+              </div>
+              <input type="range" id="tempo" class="neon-range-slider" min="50" max="220" step="1" value="124">
+            </div>
+
+            <div class="tactile-slider-unit">
+              <div class="slider-label-row">
+                <span class="slider-name">Acousticness</span>
+                <span class="slider-dynamic-val" id="val-acousticness">0.12</span>
+              </div>
+              <input type="range" id="acousticness" class="neon-range-slider" min="0" max="1" step="0.01" value="0.12">
+            </div>
+
+            <div class="tactile-slider-unit">
+              <div class="slider-label-row">
+                <span class="slider-name">Speechiness</span>
+                <span class="slider-dynamic-val" id="val-speechiness">0.07</span>
+              </div>
+              <input type="range" id="speechiness" class="neon-range-slider" min="0" max="1" step="0.01" value="0.07">
+            </div>
+
+            <div class="tactile-slider-unit">
+              <div class="slider-label-row">
+                <span class="slider-name">Instrumentalness</span>
+                <span class="slider-dynamic-val" id="val-instrumentalness">0.00</span>
+              </div>
+              <input type="range" id="instrumentalness" class="neon-range-slider" min="0" max="1" step="0.01" value="0.00">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="console-output-stack">
+        <div class="gauge-console-card">
+          <div class="conic-gauge-outer" id="gauge-progress">
+            <div class="conic-gauge-core">
+              <span class="gauge-score-display" id="pred-popularity-value">74</span>
+              <span class="gauge-score-sub">Popularity / 100</span>
+            </div>
+          </div>
+
+          <div id="tier-badge" class="tier-status-pill">
+            <i data-lucide="flame" style="width: 14px; height: 14px;"></i>
+            <span id="tier-badge-text">POTENTIAL GLOBAL HIT</span>
+          </div>
+
+          <p class="tier-narrative" id="tier-explanation-text">
+            Trek memiliki profil psikoakustik optimal dengan danceability dan energi seimbang untuk playlist streaming komersial.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter-section" id="constellations-chapter">
+    <div class="chapter-heading-box">
+      <span class="chapter-eyebrow">Unsupervised Clustering</span>
+      <h2 class="chapter-title">K-Means Sound Constellations</h2>
+      <p class="chapter-desc">
+        Pengelompokan 114.000+ lagu ke dalam 4 klaster arketipe musik berdasarkan kesamaan Euclidean multidimensi.
+      </p>
+    </div>
+
+    <div class="asymmetric-bento-grid">
+      <div class="double-bezel-card bento-col-4">
+        <div class="bezel-core-box">
+          <div class="bezel-top-row">
+            <span class="bezel-badge">Archetype Selector</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;">
+            <button class="preset-chip active constellation-tab-item" data-cluster="0" style="text-align: left; padding: 0.75rem 1rem;">
+              01 &bull; Dance / Party Euphoria
+            </button>
+            <button class="preset-chip constellation-tab-item" data-cluster="1" style="text-align: left; padding: 0.75rem 1rem;">
+              02 &bull; Loud & Distorted Energy
+            </button>
+            <button class="preset-chip constellation-tab-item" data-cluster="2" style="text-align: left; padding: 0.75rem 1rem;">
+              03 &bull; Acoustic & Organic Calm
+            </button>
+            <button class="preset-chip constellation-tab-item" data-cluster="3" style="text-align: left; padding: 0.75rem 1rem;">
+              04 &bull; Ambient & Focus Solitude
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="double-bezel-card bento-col-8">
+        <div class="bezel-core-box">
+          <div class="bezel-top-row">
+            <div>
+              <h3 class="bezel-h3" id="explorer-cluster-title">Dance / Party (Energetik & Ceria)</h3>
+              <p class="bezel-p" id="explorer-cluster-desc" style="margin-bottom: 0;">
+                Klaster ini didominasi oleh lagu-lagu dengan tingkat keceriaan (valence) dan ketukan dansa (danceability) tinggi.
+              </p>
+            </div>
+            <span class="bezel-badge" id="explorer-cluster-portion">38.2% Dataset</span>
+          </div>
+          <div class="chart-canvas-box" style="height: 260px;">
+            <canvas id="clusterProfileChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter-section" id="analytics-chapter">
+    <div class="chapter-heading-box">
+      <span class="chapter-eyebrow">Exploratory Data Science</span>
+      <h2 class="chapter-title">Deep Audio Analytics Suite</h2>
+      <p class="chapter-desc">
+        Pemeringkatan feature importance model prediktif, komparasi genre teratas, dan matriks korelasi linear Pearson.
+      </p>
+    </div>
+
+    <div class="analytics-cards-grid">
+      <div class="double-bezel-card">
+        <div class="bezel-core-box">
+          <div class="console-title-text" style="font-size: 1.1rem;">
+            <i data-lucide="bar-chart-2" style="color: var(--color-primary);"></i>
+            <span>Feature Importance Weights</span>
+          </div>
+          <div class="chart-canvas-box">
+            <canvas id="featureImportanceChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="double-bezel-card">
+        <div class="bezel-core-box">
+          <div class="console-title-text" style="font-size: 1.1rem;">
+            <i data-lucide="trending-up" style="color: var(--color-primary);"></i>
+            <span>Top 15 Genres by Popularity Score</span>
+          </div>
+          <div class="chart-canvas-box">
+            <canvas id="topGenresChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="double-bezel-card" style="margin-top: 2rem;">
+      <div class="bezel-core-box">
+        <div class="console-title-text" style="font-size: 1.1rem;">
+          <i data-lucide="grid" style="color: var(--color-primary);"></i>
+          <span>Pearson Audio Correlation Matrix</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.4rem;">
+          Menunjukkan korelasi linear antar 11 fitur audio. Warna hijau mengindikasikan korelasi positif, sedangkan merah korelasi negatif.
+        </p>
+        <div style="overflow-x: auto;">
+          <table class="heatmap-scroll-table" id="heatmap-table"></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter-section" id="telemetry-chapter">
+    <div class="chapter-heading-box">
+      <span class="chapter-eyebrow">Scientific Methodology</span>
+      <h2 class="chapter-title">Mathematical Telemetry</h2>
+      <p class="chapter-desc">
+        Formulasi kuantitatif yang menggerakkan normalisasi fitur, minimasi inersia klaster, dan regularisasi model.
+      </p>
+    </div>
+
+    <div class="math-cards-grid">
+      <div class="double-bezel-card">
+        <div class="bezel-core-box">
+          <div class="math-card-header">
+            <span class="math-index-pill">01</span>
+            <h3 class="bezel-h3" style="font-size: 1.15rem; margin-bottom: 0;">Z-Score Audio Scaling</h3>
+          </div>
+          <p class="bezel-p">Menyelaraskan skala fitur berbeda ke dalam distribusi normal baku.</p>
+          <div class="katex-formula-box">
+            $$z_i = \frac{x_i - \mu_i}{\sigma_i}$$
+          </div>
+        </div>
+      </div>
+
+      <div class="double-bezel-card">
+        <div class="bezel-core-box">
+          <div class="math-card-header">
+            <span class="math-index-pill">02</span>
+            <h3 class="bezel-h3" style="font-size: 1.15rem; margin-bottom: 0;">K-Means Inertia</h3>
+          </div>
+          <p class="bezel-p">Minimasi jumlah kuadrat jarak Euclidean terhadap sentroid klaster.</p>
+          <div class="katex-formula-box">
+            $$J = \sum_{j=1}^{k} \sum_{x_i \in S_j} \|x_i - \mu_j\|^2$$
+          </div>
+        </div>
+      </div>
+
+      <div class="double-bezel-card">
+        <div class="bezel-core-box">
+          <div class="math-card-header">
+            <span class="math-index-pill">03</span>
+            <h3 class="bezel-h3" style="font-size: 1.15rem; margin-bottom: 0;">Ridge L2 Regularization</h3>
+          </div>
+          <p class="bezel-p">Mencegah overfitting dan multikolinearitas antar-fitur berkorelasi tinggi.</p>
+          <div class="katex-formula-box">
+            $$\min_{w} \|Xw - y\|_2^2 + \alpha \|w\|_2^2$$
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="studio-footer-chapter">
+    <div class="footer-inner-wrapper">
+      <div class="footer-top-row">
+        <div class="footer-brand-box">
+          <div class="brand-title" style="font-size: 1.2rem;">SPOTIFY <span>INTELLIGENCE</span></div>
+          <p class="footer-tagline">
+            Sistem analisis audio kuantitatif dan laboratorium machine learning untuk membedah sinyal psikoakustik lagu komersial.
+          </p>
+        </div>
+
+        <div class="footer-nav-columns">
+          <div class="footer-nav-col">
+            <span class="footer-col-header">Navigation</span>
+            <a href="#hero-chapter" class="footer-nav-link">Overview</a>
+            <a href="#sonic-dna-chapter" class="footer-nav-link">Sonic DNA</a>
+            <a href="#predictor-chapter" class="footer-nav-link">Hit Predictor</a>
+            <a href="#constellations-chapter" class="footer-nav-link">Constellations</a>
+          </div>
+          <div class="footer-nav-col">
+            <span class="footer-col-header">Resources</span>
+            <a href="notebook.ipynb" class="footer-nav-link" target="_blank">Jupyter Notebook (.ipynb)</a>
+            <a href="README.md" class="footer-nav-link" target="_blank">Academic Report</a>
+            <a href="https://scikit-learn.org" class="footer-nav-link" target="_blank">Scikit-Learn ML</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom-telemetry">
+        <span>&copy; 2026 Spotify Audio Intelligence Research. Deterministic Seed=42.</span>
+        <span>Double-Bezel Architecture &bull; Web Audio API &bull; KaTeX</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="dashboard_data.js"></script>
+  <script src="audio_engine.js"></script>
+  <script src="dashboard.js"></script>
 </body>
 </html>
