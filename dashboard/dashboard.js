@@ -383,11 +383,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderCorrelationHeatmap() {
-    if (!window.dashboardData || !dashboardData.correlation_matrix) return;
+    if (!window.dashboardData || !dashboardData.corr_data) return;
     const table = document.getElementById('heatmap-table');
     if (!table) return;
 
-    const data = dashboardData.correlation_matrix;
+    const data = dashboardData.corr_data;
     const features = data.features;
     const matrix = data.matrix;
 
@@ -445,4 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderAllKaTeX();
   setTimeout(renderAllKaTeX, 200);
+  setTimeout(renderAllKaTeX, 600);
+  window.addEventListener('load', renderAllKaTeX);
 });
