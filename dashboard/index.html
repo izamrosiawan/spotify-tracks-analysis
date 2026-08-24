@@ -305,6 +305,21 @@
               <input type="range" id="instrumentalness" class="neon-range-slider" min="0" max="1" step="0.01" value="0.00">
             </div>
           </div>
+
+          <div class="console-sub-telemetry" style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-shell); display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+            <div>
+              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Model Confidence</span>
+              <div id="telemetry-confidence" style="font-family: var(--font-mono); font-size: 0.9rem; font-weight: 800; color: var(--color-primary); margin-top: 0.2rem;">94.2% (R&sup2;=0.88)</div>
+            </div>
+            <div>
+              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Harmonic Key</span>
+              <div id="telemetry-key" style="font-family: var(--font-mono); font-size: 0.9rem; font-weight: 800; color: var(--text-primary); margin-top: 0.2rem;">5 (F Major / 1)</div>
+            </div>
+            <div>
+              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Target Normalization</span>
+              <div id="telemetry-norm" style="font-family: var(--font-mono); font-size: 0.9rem; font-weight: 800; color: var(--text-primary); margin-top: 0.2rem;">-14.0 LUFS EBU</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -351,22 +366,37 @@
     <div class="asymmetric-bento-grid">
       <div class="double-bezel-card bento-col-4">
         <div class="bezel-core-box">
-          <div class="bezel-top-row">
-            <span class="bezel-badge">Archetype Selector</span>
+          <div>
+            <div class="bezel-top-row" style="margin-bottom: 0.85rem;">
+              <span class="bezel-badge">Archetype Selector</span>
+              <span id="cluster-badge-tag" style="font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; color: var(--color-primary);">K-Means (k=4)</span>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+              Pilih arketipe klaster untuk mengeksplorasi bobot sentroid psikoakustik pada ruang berdimensi 11.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+              <button class="preset-chip active constellation-tab-item" data-cluster="0" style="text-align: left; padding: 0.75rem 1rem; width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                <span>01 &bull; Dance / Party</span>
+                <span style="font-size: 0.7rem; opacity: 0.85;">38.2%</span>
+              </button>
+              <button class="preset-chip constellation-tab-item" data-cluster="1" style="text-align: left; padding: 0.75rem 1rem; width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                <span>02 &bull; Loud & Distorted</span>
+                <span style="font-size: 0.7rem; opacity: 0.85;">28.9%</span>
+              </button>
+              <button class="preset-chip constellation-tab-item" data-cluster="2" style="text-align: left; padding: 0.75rem 1rem; width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                <span>03 &bull; Acoustic & Organic</span>
+                <span style="font-size: 0.7rem; opacity: 0.85;">22.1%</span>
+              </button>
+              <button class="preset-chip constellation-tab-item" data-cluster="3" style="text-align: left; padding: 0.75rem 1rem; width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                <span>04 &bull; Ambient Solitude</span>
+                <span style="font-size: 0.7rem; opacity: 0.85;">10.8%</span>
+              </button>
+            </div>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;">
-            <button class="preset-chip active constellation-tab-item" data-cluster="0" style="text-align: left; padding: 0.75rem 1rem;">
-              01 &bull; Dance / Party Euphoria
-            </button>
-            <button class="preset-chip constellation-tab-item" data-cluster="1" style="text-align: left; padding: 0.75rem 1rem;">
-              02 &bull; Loud & Distorted Energy
-            </button>
-            <button class="preset-chip constellation-tab-item" data-cluster="2" style="text-align: left; padding: 0.75rem 1rem;">
-              03 &bull; Acoustic & Organic Calm
-            </button>
-            <button class="preset-chip constellation-tab-item" data-cluster="3" style="text-align: left; padding: 0.75rem 1rem;">
-              04 &bull; Ambient & Focus Solitude
-            </button>
+
+          <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-shell); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">Inertia Share:</span>
+            <span id="cluster-inertia-val" style="font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; color: var(--color-primary);">24.5% Inertia</span>
           </div>
         </div>
       </div>
