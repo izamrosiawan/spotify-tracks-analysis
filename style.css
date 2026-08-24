@@ -538,10 +538,18 @@ body {
   line-height: 1.65;
 }
 
+.balanced-bezel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.75rem;
+  align-items: stretch;
+}
+
 .asymmetric-bento-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 1.5rem;
+  gap: 1.75rem;
+  align-items: stretch;
 }
 
 .bento-col-8 { grid-column: span 8; }
