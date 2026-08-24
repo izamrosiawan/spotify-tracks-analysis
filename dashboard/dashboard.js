@@ -1,616 +1,744 @@
-/**
- * Spotify Insights Dashboard - Interactivity & Analytics Engine
- * Implements K-Means classification, Ridge Regression prediction,
- * Chart.js renders, custom Heatmap, theme toggling, and smooth scrolling.
- */
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Lucide Icons
+  window.scrollTo(0, 0);
+  if (window.lucide) {
     lucide.createIcons();
+  }
 
-    // Elements
-    const songSearch = document.getElementById('song-search');
-    const searchResults = document.getElementById('search-results');
-    const predPopularityValue = document.getElementById('pred-popularity-value');
-    const gaugeProgress = document.getElementById('gauge-progress');
-    
-    const clusterNumberBadge = document.getElementById('cluster-number-badge');
-    const clusterNameTitle = document.getElementById('cluster-name-title');
-    const clusterDescText = document.getElementById('cluster-desc-text');
-    
-    const workspaceWrapper = document.querySelector('.workspace-wrapper');
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    const themeIcon = document.getElementById('theme-icon');
-    
-    // Sliders & inputs
-    const sliderIds = [
-        'duration_ms', 'tempo', 'loudness', 'danceability', 'energy', 
-        'acousticness', 'instrumentalness', 'valence', 'speechiness', 'liveness'
-    ];
-    const keySelect = document.getElementById('key');
-    const modeSelect = document.getElementById('mode');
-    
-    // Cluster profiles descriptions
-    const clusterMetaInfo = {
-        0: {
-            name: "Dance / Party (Energetik & Ceria)",
-            desc: "Klaster ini didominasi oleh lagu-lagu dengan tingkat keceriaan (valence) dan ketukan dansa (danceability) yang sangat tinggi, serta energi audio yang kuat. Musik dansa elektrik, disko, dan pop modern mendominasi kelompok ini.",
-            color: "#0071e3",
-            portion: "38.2% dari Dataset"
-        },
-        1: {
-            name: "Loud / Energetic (Keras & Cadas)",
-            desc: "Klaster lagu dengan tingkat energi tertinggi dan volume kenyaringan (loudness) yang sangat keras, namun dengan keceriaan yang lebih rendah. Sangat mewakili genre Rock, Metal, dan Electronic/Dance bertempo cepat.",
-            color: "#ff3b30",
-            portion: "28.9% dari Dataset"
-        },
-        2: {
-            name: "Acoustic / Slow (Tenang & Organik)",
-            desc: "Klaster dengan keakustikan (acousticness) sangat tinggi dan energi yang sangat rendah. Musik klasik, lagu akustik ballad, dan lagu folk santai berada di kelompok ini. Menawarkan suasana tenang dan intim.",
-            color: "#34c759",
-            portion: "22.1% dari Dataset"
-        },
-        3: {
-            name: "Instrumental / Ambient (Fokus & Latar)",
-            desc: "Klaster musik instrumental dengan tingkat keakustikan tinggi dan vokal yang hampir tidak ada (instrumentalness mendekati 1.0). Lagu pengantar belajar, musik meditasi, dan ambient lo-fi berada di klaster ini.",
-            color: "#af52de",
-            portion: "10.8% dari Dataset"
+  const heroCanvas = document.getElementById('hero-canvas');
+  const globalAudioToggle = document.getElementById('global-audio-toggle');
+  const audioPlayIcon = document.getElementById('audio-play-icon');
+  const audioStatusLabel = document.getElementById('audio-status-label');
+  const btnAuditionTrack = document.getElementById('btn-audition-track');
+
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeIconElement = document.getElementById('theme-icon-element');
+
+  const songSearch = document.getElementById('song-search');
+  const searchResults = document.getElementById('search-results');
+  const predPopularityValue = document.getElementById('pred-popularity-value');
+  const gaugeProgress = document.getElementById('gauge-progress');
+  const tierBadge = document.getElementById('tier-badge');
+  const tierBadgeText = document.getElementById('tier-badge-text');
+  const tierExplanationText = document.getElementById('tier-explanation-text');
+  const waterfallList = document.getElementById('waterfall-list');
+
+  const sliderIds = [
+    'danceability', 'energy', 'loudness', 'valence', 'tempo',
+    'acousticness', 'speechiness', 'instrumentalness', 'duration_ms'
+  ];
+  const keySelect = document.getElementById('key');
+  const modeSelect = document.getElementById('mode');
+
+  const clusterMetaInfo = {
+    0: {
+      name: "Dance / Party Euphoria (Energetik & Ceria)",
+      desc: "Didominasi oleh trek dengan ritme dansa tinggi (danceability > 0.70), kepositifan (valence), dan energi kuat. Mewakili Pop, Modern Dance, Reggaeton, dan Disco.",
+      color: "#1ed760",
+      portion: "38.2% Dataset"
+    },
+    1: {
+      name: "Loud & Distorted Energy (Keras & Cadas)",
+      desc: "Klaster berenergi puncak dan kompresi kenyaringan sangat tinggi (-4 dB s/d -6 dB) dengan keakustikan rendah. Mewakili Rock, Metal, Punk, dan Bass Heavy genres.",
+      color: "#f43f5e",
+      portion: "28.9% Dataset"
+    },
+    2: {
+      name: "Acoustic & Organic Calm (Tenang & Organik)",
+      desc: "Klaster dengan nilai keakustikan tinggi (acousticness > 0.65) dan tempo santai. Sangat dominan pada lagu Akustik, Folk, Balada, dan Classical.",
+      color: "#38bdf8",
+      portion: "22.1% Dataset"
+    },
+    3: {
+      name: "Ambient & Focus Solitude (Fokus & Latar)",
+      desc: "Klaster musik instrumental murni dengan vokal minim (instrumentalness mendekati 1.0) untuk konsentrasi, lo-fi beats, meditasi, dan soundscapes.",
+      color: "#a855f7",
+      portion: "10.8% Dataset"
+    }
+  };
+
+  const archetypePresets = {
+    'viral-pop': {
+      danceability: 0.78, energy: 0.75, loudness: -5.2, valence: 0.70,
+      tempo: 124, acousticness: 0.12, speechiness: 0.07, instrumentalness: 0.00,
+      duration_ms: 195000, key: 0, mode: 1
+    },
+    'lofi-chill': {
+      danceability: 0.62, energy: 0.38, loudness: -11.5, valence: 0.45,
+      tempo: 84, acousticness: 0.72, speechiness: 0.05, instrumentalness: 0.85,
+      duration_ms: 155000, key: 5, mode: 0
+    },
+    'festival-edm': {
+      danceability: 0.70, energy: 0.92, loudness: -3.8, valence: 0.65,
+      tempo: 128, acousticness: 0.04, speechiness: 0.09, instrumentalness: 0.25,
+      duration_ms: 210000, key: 9, mode: 0
+    },
+    'melancholy-indie': {
+      danceability: 0.48, energy: 0.32, loudness: -12.4, valence: 0.22,
+      tempo: 96, acousticness: 0.86, speechiness: 0.04, instrumentalness: 0.02,
+      duration_ms: 240000, key: 2, mode: 1
+    },
+    'hard-rock': {
+      danceability: 0.45, energy: 0.88, loudness: -4.5, valence: 0.50,
+      tempo: 142, acousticness: 0.01, speechiness: 0.08, instrumentalness: 0.15,
+      duration_ms: 230000, key: 7, mode: 1
+    }
+  };
+
+  if (heroCanvas) {
+    const ctx = heroCanvas.getContext('2d');
+    let width = (heroCanvas.width = heroCanvas.offsetWidth);
+    let height = (heroCanvas.height = heroCanvas.offsetHeight);
+
+    window.addEventListener('resize', () => {
+      width = heroCanvas.width = heroCanvas.offsetWidth;
+      height = heroCanvas.height = heroCanvas.offsetHeight;
+    });
+
+    const particles = [];
+    const numParticles = 30;
+    for (let i = 0; i < numParticles; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.5 + 1,
+        speedX: (Math.random() - 0.5) * 0.25,
+        speedY: (Math.random() - 0.5) * 0.25,
+        opacity: Math.random() * 0.4 + 0.15
+      });
+    }
+
+    let phase = 0;
+
+    function renderCanvas() {
+      ctx.clearRect(0, 0, width, height);
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.speedX;
+        p.y += p.speedY;
+
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+        if (p.y < 0) p.y = height;
+        if (p.y > height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(22, 163, 74, ${p.opacity * 0.6})`;
+        ctx.fill();
+
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(15, 23, 42, ${0.06 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
         }
-    };
+      }
 
-    // --- 1. DYNAMIC DATE & STATUS UPDATE ---
-    function updateStatusDate() {
-        const now = new Date();
-        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = months[now.getMonth()];
-        const year = now.getFullYear();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        
-        const dateString = `DATE: ${day}-${month}-${year} // UTC+07:00`; // Assuming local timezone or simplified representation
-        document.getElementById('status-date').textContent = dateString;
+      const waves = [
+        { amp: 26, freq: 0.006, speed: 0.018, color: 'rgba(22, 163, 74, 0.25)', yOffset: height * 0.62 },
+        { amp: 18, freq: 0.010, speed: 0.024, color: 'rgba(15, 23, 42, 0.12)', yOffset: height * 0.65 },
+        { amp: 32, freq: 0.003, speed: 0.012, color: 'rgba(22, 163, 74, 0.15)', yOffset: height * 0.60 }
+      ];
+
+      const freqData = window.cinematicAudioEngine && window.cinematicAudioEngine.isPlaying ? window.cinematicAudioEngine.getFrequencyData() : null;
+      const energyBoost = freqData ? (freqData[2] / 255) * 25 : 0;
+
+      waves.forEach(w => {
+        ctx.beginPath();
+        for (let x = 0; x <= width; x += 6) {
+          const currentAmp = w.amp + energyBoost;
+          const y = w.yOffset + Math.sin(x * w.freq + phase * w.speed) * currentAmp * Math.cos((x / width) * Math.PI - Math.PI / 2);
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = w.color;
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+      });
+
+      phase += 1;
+      requestAnimationFrame(renderCanvas);
     }
-    updateStatusDate();
-    setInterval(updateStatusDate, 60000); // Update every minute
+    renderCanvas();
+  }
 
-    // --- 2. POPULATE INITIAL STATE & SLIDERS ---
-    function updateSliderLabels() {
-        sliderIds.forEach(id => {
-            const el = document.getElementById(id);
-            const valEl = document.getElementById(`val-${id}`);
-            if (id === 'duration_ms') {
-                const minutes = Math.floor(el.value / 60000);
-                const seconds = ((el.value % 60000) / 1000).toFixed(0);
-                valEl.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            } else if (id === 'tempo') {
-                valEl.textContent = `${el.value} BPM`;
-            } else if (id === 'loudness') {
-                valEl.textContent = `${el.value} dB`;
-            } else {
-                valEl.textContent = parseFloat(el.value).toFixed(2);
-            }
-        });
+  function syncAudioEngine() {
+    if (!window.cinematicAudioEngine) return;
+    window.cinematicAudioEngine.updateParams({
+      tempo: parseFloat(document.getElementById('tempo').value),
+      energy: parseFloat(document.getElementById('energy').value),
+      danceability: parseFloat(document.getElementById('danceability').value),
+      valence: parseFloat(document.getElementById('valence').value),
+      acousticness: parseFloat(document.getElementById('acousticness').value)
+    });
+  }
 
-        const keys = ["C", "C# / D♭", "D", "D# / E♭", "E", "F", "F# / G♭", "G", "G# / A♭", "A", "A# / B♭", "B"];
-        const modeText = modeSelect.value === "1" ? "Mayor" : "Minor";
-        document.getElementById('val-key-mode').textContent = `${keys[keySelect.value]} ${modeText}`;
+  function toggleAudioPlayback() {
+    if (!window.cinematicAudioEngine) return;
+    syncAudioEngine();
+    const isPlaying = window.cinematicAudioEngine.toggle();
+
+    if (isPlaying) {
+      globalAudioToggle.classList.add('playing');
+      audioStatusLabel.textContent = `${Math.round(document.getElementById('tempo').value)} BPM`;
+      audioPlayIcon.setAttribute('data-lucide', 'square');
+      btnAuditionTrack.innerHTML = `<i data-lucide="square" style="width:14px;height:14px;"></i><span>Stop Audio</span>`;
+    } else {
+      globalAudioToggle.classList.remove('playing');
+      audioStatusLabel.textContent = 'OFFLINE';
+      audioPlayIcon.setAttribute('data-lucide', 'play');
+      btnAuditionTrack.innerHTML = `<i data-lucide="play-circle" style="width:14px;height:14px;"></i><span>Audition DNA</span>`;
     }
+    lucide.createIcons();
+  }
 
+  if (globalAudioToggle) globalAudioToggle.addEventListener('click', toggleAudioPlayback);
+  if (btnAuditionTrack) btnAuditionTrack.addEventListener('click', toggleAudioPlayback);
+
+  function updateSliderLabels() {
     sliderIds.forEach(id => {
-        const el = document.getElementById(id);
-        el.addEventListener('input', () => {
-            updateSliderLabels();
-            calculatePrediction();
-        });
+      const el = document.getElementById(id);
+      const valEl = document.getElementById(`val-${id}`);
+      if (!el || !valEl) return;
+
+      if (id === 'duration_ms') {
+        const mins = Math.floor(el.value / 60000);
+        const secs = ((el.value % 60000) / 1000).toFixed(0);
+        valEl.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+      } else if (id === 'tempo') {
+        valEl.textContent = `${Math.round(el.value)} BPM`;
+      } else if (id === 'loudness') {
+        valEl.textContent = `${parseFloat(el.value).toFixed(1)} dB`;
+      } else {
+        valEl.textContent = parseFloat(el.value).toFixed(2);
+      }
     });
-    keySelect.addEventListener('change', () => {
-        updateSliderLabels();
-        calculatePrediction();
-    });
-    modeSelect.addEventListener('change', () => {
-        updateSliderLabels();
-        calculatePrediction();
-    });
 
-    // --- 3. MULTIPLE REGRESSION PREDICTOR & K-MEANS CLASSIFIER ---
-    function calculatePrediction() {
-        const duration_ms = parseFloat(document.getElementById('duration_ms').value);
-        const danceability = parseFloat(document.getElementById('danceability').value);
-        const energy = parseFloat(document.getElementById('energy').value);
-        const key = parseInt(document.getElementById('key').value);
-        const loudness = parseFloat(document.getElementById('loudness').value);
-        const mode = parseInt(document.getElementById('mode').value);
-        const speechiness = parseFloat(document.getElementById('speechiness').value);
-        const acousticness = parseFloat(document.getElementById('acousticness').value);
-        const instrumentalness = parseFloat(document.getElementById('instrumentalness').value);
-        const liveness = parseFloat(document.getElementById('liveness').value);
-        const valence = parseFloat(document.getElementById('valence').value);
-        const tempo = parseFloat(document.getElementById('tempo').value);
+    const keys = ["C", "C# / D♭", "D", "D# / E♭", "E", "F", "F# / G♭", "G", "G# / A♭", "A", "A# / B♭", "B"];
+    const modeText = modeSelect.value === "1" ? "Major" : "Minor";
+    document.getElementById('val-key-mode').textContent = `${keys[keySelect.value]} ${modeText}`;
+  }
 
-        const xValues = [duration_ms, danceability, energy, key, loudness, mode, speechiness, acousticness, instrumentalness, liveness, valence, tempo];
+  function calculatePrediction() {
+    if (!window.dashboardData) return;
 
-        // 3a. Scale X values
-        const predMeans = dashboardData.pred_scaler_params.mean;
-        const predScales = dashboardData.pred_scaler_params.scale;
-        const xScaled = xValues.map((val, idx) => (val - predMeans[idx]) / predScales[idx]);
+    const duration_ms = parseFloat(document.getElementById('duration_ms').value);
+    const danceability = parseFloat(document.getElementById('danceability').value);
+    const energy = parseFloat(document.getElementById('energy').value);
+    const key = parseInt(document.getElementById('key').value);
+    const loudness = parseFloat(document.getElementById('loudness').value);
+    const mode = parseInt(document.getElementById('mode').value);
+    const speechiness = parseFloat(document.getElementById('speechiness').value);
+    const acousticness = parseFloat(document.getElementById('acousticness').value);
+    const instrumentalness = parseFloat(document.getElementById('instrumentalness').value);
+    const liveness = 0.18;
+    const valence = parseFloat(document.getElementById('valence').value);
+    const tempo = parseFloat(document.getElementById('tempo').value);
 
-        // 3b. Compute Ridge Regression prediction
-        const coefs = dashboardData.predictor_coefficients.coef;
-        const intercept = dashboardData.predictor_coefficients.intercept;
-        
-        let prediction = intercept;
-        for (let i = 0; i < xScaled.length; i++) {
-            prediction += xScaled[i] * coefs[i];
-        }
-        prediction = Math.max(0, Math.min(100, prediction));
+    const xValues = [duration_ms, danceability, energy, key, loudness, mode, speechiness, acousticness, instrumentalness, liveness, valence, tempo];
 
-        // Update Gauge UI
-        predPopularityValue.textContent = Math.round(prediction);
-        const degrees = (prediction / 100) * 360;
-        gaugeProgress.style.background = `conic-gradient(var(--color-primary) ${degrees}deg, var(--color-border) ${degrees}deg)`;
+    const predMeans = dashboardData.pred_scaler_params.mean;
+    const predScales = dashboardData.pred_scaler_params.scale;
+    const xScaled = xValues.map((val, idx) => (val - predMeans[idx]) / predScales[idx]);
 
-        // 3c. K-Means Classification (using 5 features)
-        const clusterInput = [danceability, energy, acousticness, instrumentalness, valence];
-        const clusterMeans = dashboardData.cluster_scaler_params.mean;
-        const clusterScales = dashboardData.cluster_scaler_params.scale;
-        const clusterScaled = clusterInput.map((val, idx) => (val - clusterMeans[idx]) / clusterScales[idx]);
+    const coefs = dashboardData.predictor_coefficients.coef;
+    const intercept = dashboardData.predictor_coefficients.intercept;
 
-        let minDistance = Infinity;
-        let assignedCluster = 0;
+    let prediction = intercept;
+    const contributions = [];
+    const featureNames = [
+      'Duration', 'Danceability', 'Energy', 'Musical Key', 'Loudness (dB)',
+      'Scale Mode', 'Speechiness', 'Acousticness', 'Instrumentalness',
+      'Liveness', 'Valence (Mood)', 'Tempo (BPM)'
+    ];
 
-        for (let clusterId = 0; clusterId < 4; clusterId++) {
-            const profile = dashboardData.cluster_profiles[clusterId];
-            const profileScaled = [
-                (profile.danceability - clusterMeans[0]) / clusterScales[0],
-                (profile.energy - clusterMeans[1]) / clusterScales[1],
-                (profile.acousticness - clusterMeans[2]) / clusterScales[2],
-                (profile.instrumentalness - clusterMeans[3]) / clusterScales[3],
-                (profile.valence - clusterMeans[4]) / clusterScales[4]
-            ];
-
-            let distance = 0;
-            for (let i = 0; i < clusterScaled.length; i++) {
-                distance += Math.pow(clusterScaled[i] - profileScaled[i], 2);
-            }
-            distance = Math.sqrt(distance);
-
-            if (distance < minDistance) {
-                minDistance = distance;
-                assignedCluster = clusterId;
-            }
-        }
-
-        // Update Cluster UI
-        const meta = clusterMetaInfo[assignedCluster];
-        clusterNumberBadge.textContent = `Klaster ${assignedCluster}`;
-        clusterNumberBadge.style.color = meta.color;
-        clusterNumberBadge.style.backgroundColor = `${meta.color}15`;
-        clusterNameTitle.textContent = meta.name;
-        clusterDescText.textContent = meta.desc;
-
-        // Update visual profile comparison bars
-        const profile = dashboardData.cluster_profiles[assignedCluster];
-        document.getElementById('profile-val-dance').textContent = profile.danceability.toFixed(2);
-        document.getElementById('profile-bar-dance').style.width = `${profile.danceability * 100}%`;
-        document.getElementById('profile-bar-dance').style.backgroundColor = meta.color;
-
-        document.getElementById('profile-val-energy').textContent = profile.energy.toFixed(2);
-        document.getElementById('profile-bar-energy').style.width = `${profile.energy * 100}%`;
-        document.getElementById('profile-bar-energy').style.backgroundColor = meta.color;
-
-        document.getElementById('profile-val-acoustic').textContent = profile.acousticness.toFixed(2);
-        document.getElementById('profile-bar-acoustic').style.width = `${profile.acousticness * 100}%`;
-        document.getElementById('profile-bar-acoustic').style.backgroundColor = meta.color;
-
-        document.getElementById('profile-val-instrumental').textContent = profile.instrumentalness.toFixed(2);
-        document.getElementById('profile-bar-instrumental').style.width = `${profile.instrumentalness * 100}%`;
-        document.getElementById('profile-bar-instrumental').style.backgroundColor = meta.color;
-
-        document.getElementById('profile-val-valence').textContent = profile.valence.toFixed(2);
-        document.getElementById('profile-bar-valence').style.width = `${profile.valence * 100}%`;
-        document.getElementById('profile-bar-valence').style.backgroundColor = meta.color;
+    for (let i = 0; i < xScaled.length; i++) {
+      const impact = xScaled[i] * coefs[i];
+      prediction += impact;
+      contributions.push({ name: featureNames[i], impact: impact });
     }
 
-    // --- 4. SAMPLE TRACK SEARCH & AUTOCOMPLETE ---
+    prediction = Math.max(5, Math.min(98, Math.round(prediction)));
+
+    predPopularityValue.textContent = prediction;
+    const degrees = (prediction / 100) * 360;
+    gaugeProgress.style.background = `conic-gradient(var(--color-primary) ${degrees}deg, var(--bg-surface-elevated) ${degrees}deg)`;
+
+    tierBadge.className = 'tier-status-pill';
+    if (prediction >= 70) {
+      tierBadge.classList.add('tier-viral');
+      tierBadgeText.textContent = 'POTENTIAL GLOBAL HIT';
+      tierExplanationText.textContent = 'Profil audio ideal dengan ritme danceability tinggi dan kompresi kenyaringan prima untuk kurasi playlist viral global.';
+    } else if (prediction >= 50) {
+      tierBadge.classList.add('tier-hit');
+      tierBadgeText.textContent = 'MAINSTREAM AIRPLAY';
+      tierExplanationText.textContent = 'Memiliki karakteristik seimbang dengan potensi kuat untuk siaran radio dan rotasi streaming regional.';
+    } else if (prediction >= 35) {
+      tierBadge.classList.add('tier-mod');
+      tierBadgeText.textContent = 'MODERATE ROTATION';
+      tierExplanationText.textContent = 'Cocok untuk audiens spesifik genre dengan loyalitas pendengar terfokus.';
+    } else {
+      tierBadge.classList.add('tier-niche');
+      tierBadgeText.textContent = 'NICHE / UNDERGROUND';
+      tierExplanationText.textContent = 'Eksperimental atau instrumen organik murni dengan pasar pendengar akustik / ambient.';
+    }
+
+    contributions.sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact));
+    const topContribs = contributions.slice(0, 5);
+
+    waterfallList.innerHTML = topContribs.map(item => {
+      const isPositive = item.impact >= 0;
+      const barColor = isPositive ? 'var(--color-primary)' : 'var(--text-muted)';
+      const widthPct = Math.min(100, Math.abs(item.impact) * 22);
+      const sign = isPositive ? '+' : '';
+      return `
+        <div class="shap-row">
+          <span class="shap-feat-name">${item.name}</span>
+          <div class="shap-track">
+            <div class="shap-fill" style="width: ${widthPct}%; background: ${barColor};"></div>
+          </div>
+          <span class="shap-delta-val" style="color: ${barColor};">${sign}${item.impact.toFixed(1)}</span>
+        </div>
+      `;
+    }).join('');
+
+    syncAudioEngine();
+  }
+
+  sliderIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        updateSliderLabels();
+        calculatePrediction();
+      });
+    }
+  });
+
+  keySelect.addEventListener('change', () => {
+    updateSliderLabels();
+    calculatePrediction();
+  });
+  modeSelect.addEventListener('change', () => {
+    updateSliderLabels();
+    calculatePrediction();
+  });
+
+  document.querySelectorAll('.archetype-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const presetKey = btn.dataset.preset;
+      const preset = archetypePresets[presetKey];
+      if (!preset) return;
+
+      Object.keys(preset).forEach(k => {
+        const el = document.getElementById(k);
+        if (el) el.value = preset[k];
+      });
+
+      updateSliderLabels();
+      calculatePrediction();
+    });
+  });
+
+  if (songSearch) {
     songSearch.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
-        if (query.length < 2) {
-            searchResults.classList.add('hidden');
-            return;
-        }
+      const q = e.target.value.toLowerCase().trim();
+      if (q.length < 2) {
+        searchResults.classList.add('hidden');
+        return;
+      }
 
-        const matches = dashboardData.sample_songs.filter(song => 
-            song.track_name.toLowerCase().includes(query) || 
-            song.artists.toLowerCase().includes(query)
-        ).slice(0, 5);
+      const matches = dashboardData.sample_songs.filter(s =>
+        s.track_name.toLowerCase().includes(q) ||
+        s.artists.toLowerCase().includes(q)
+      ).slice(0, 5);
 
-        if (matches.length === 0) {
-            searchResults.innerHTML = '<div class="search-item" style="cursor:default;color:var(--color-text-muted);">Lagu tidak ditemukan</div>';
-        } else {
-            searchResults.innerHTML = matches.map(song => `
-                <div class="search-item" data-song-key="${song.artists}-${song.track_name}">
-                    <div class="song-title">${song.track_name}</div>
-                    <div class="song-artist">${song.artists} &bull; ${song.track_genre}</div>
-                </div>
-            `).join('');
-        }
-        searchResults.classList.remove('hidden');
+      if (matches.length === 0) {
+        searchResults.innerHTML = '<div class="search-result-row" style="cursor:default;color:var(--text-muted);">Lagu tidak ditemukan</div>';
+      } else {
+        searchResults.innerHTML = matches.map(s => `
+          <div class="search-result-row" data-song-key="${s.artists}-${s.track_name}">
+            <div class="result-track-title">${s.track_name}</div>
+            <div class="result-track-artist">${s.artists} &bull; ${s.track_genre} &bull; Score: ${s.popularity}</div>
+          </div>
+        `).join('');
+      }
+      searchResults.classList.remove('hidden');
     });
 
     searchResults.addEventListener('click', (e) => {
-        const item = e.target.closest('.search-item');
-        if (!item || !item.dataset.songKey) return;
+      const item = e.target.closest('.search-result-row');
+      if (!item || !item.dataset.songKey) return;
 
-        const [artist, name] = item.dataset.songKey.split('-');
-        const song = dashboardData.sample_songs.find(s => s.artists === artist && s.track_name === name);
+      const [artist, name] = item.dataset.songKey.split('-');
+      const song = dashboardData.sample_songs.find(s => s.artists === artist && s.track_name === name);
 
-        if (song) {
-            document.getElementById('duration_ms').value = song.duration_ms;
-            document.getElementById('tempo').value = Math.round(song.tempo);
-            document.getElementById('loudness').value = song.loudness;
-            document.getElementById('key').value = song.key;
-            document.getElementById('mode').value = song.mode;
-            document.getElementById('danceability').value = song.danceability;
-            document.getElementById('energy').value = song.energy;
-            document.getElementById('acousticness').value = song.acousticness;
-            document.getElementById('instrumentalness').value = song.instrumentalness;
-            document.getElementById('liveness').value = song.liveness;
-            document.getElementById('valence').value = song.valence;
-            document.getElementById('speechiness').value = song.speechiness;
+      if (song) {
+        sliderIds.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && song[id] !== undefined) el.value = song[id];
+        });
+        if (song.key !== undefined) keySelect.value = song.key;
+        if (song.mode !== undefined) modeSelect.value = song.mode;
 
-            updateSliderLabels();
-            calculatePrediction();
-
-            songSearch.value = `${song.track_name} - ${song.artists}`;
-        }
-        searchResults.classList.add('hidden');
+        updateSliderLabels();
+        calculatePrediction();
+        songSearch.value = `${song.track_name} - ${song.artists}`;
+      }
+      searchResults.classList.add('hidden');
     });
 
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('.search-box')) {
-            searchResults.classList.add('hidden');
-        }
+      if (!e.target.closest('.search-wrapper')) {
+        searchResults.classList.add('hidden');
+      }
     });
+  }
 
-    // --- 5. CLUSTER EXPLORER TAB SYSTEM & SONGS DISPLAY ---
-    let clusterChart = null;
+  let clusterChart = null;
 
-    function renderClusterChart(clusterId) {
-        const profile = dashboardData.cluster_profiles[clusterId];
-        const ctx = document.getElementById('clusterProfileChart').getContext('2d');
-        const meta = clusterMetaInfo[clusterId];
+  function renderClusterProfile(clusterId) {
+    if (!window.dashboardData || !dashboardData.cluster_profiles) return;
+    const profile = dashboardData.cluster_profiles[clusterId];
+    const meta = clusterMetaInfo[clusterId];
+    if (!profile || !meta) return;
 
-        const isDark = document.body.classList.contains('dark-theme');
-        const textCol = isDark ? '#86868b' : '#1d1d1f';
-        const gridCol = isDark ? '#232328' : '#e5e7eb';
+    const titleEl = document.getElementById('explorer-cluster-title');
+    const portionEl = document.getElementById('explorer-cluster-portion');
+    const descEl = document.getElementById('explorer-cluster-desc');
 
-        if (clusterChart) {
-            clusterChart.destroy();
-        }
+    if (titleEl) titleEl.textContent = meta.name;
+    if (portionEl) portionEl.textContent = meta.portion;
+    if (descEl) descEl.textContent = meta.desc;
 
-        clusterChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Danceability', 'Energy', 'Acousticness', 'Instrumentalness', 'Valence'],
-                datasets: [{
-                    label: 'Nilai Rata-rata',
-                    data: [
-                        profile.danceability,
-                        profile.energy,
-                        profile.acousticness,
-                        profile.instrumentalness,
-                        profile.valence
-                    ],
-                    backgroundColor: `${meta.color}90`,
-                    borderColor: meta.color,
-                    borderWidth: 1.5,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 1.0,
-                        grid: { color: gridCol },
-                        ticks: { 
-                            color: textCol,
-                            font: { family: 'Plus Jakarta Sans', size: 10 } 
-                        }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { 
-                            color: textCol,
-                            font: { family: 'Plus Jakarta Sans', size: 10 } 
-                        }
-                    }
-                }
-            }
-        });
+    const listEl = document.getElementById('explorer-songs-list');
+    if (listEl && dashboardData.sample_songs) {
+      const songs = dashboardData.sample_songs.filter(s => s.music_cluster === parseInt(clusterId)).slice(0, 4);
+      listEl.innerHTML = songs.map(s => `
+        <div class="track-pill-box">
+          <span class="track-pill-name" title="${s.track_name}">${s.track_name}</span>
+          <span class="track-pill-score">${s.popularity} Pop</span>
+        </div>
+      `).join('');
     }
 
-    function selectExplorerCluster(clusterId) {
-        const meta = clusterMetaInfo[clusterId];
-        
-        document.getElementById('explorer-cluster-title').textContent = meta.name;
-        document.getElementById('explorer-cluster-portion').textContent = meta.portion;
-        document.getElementById('explorer-cluster-desc').textContent = meta.desc;
+    const chartCanvas = document.getElementById('clusterProfileChart');
+    if (!chartCanvas) return;
+    const ctx = chartCanvas.getContext('2d');
+    if (clusterChart) clusterChart.destroy();
 
-        const clusterSongs = dashboardData.sample_songs.filter(s => s.music_cluster === parseInt(clusterId)).slice(0, 4);
-        const songsListEl = document.getElementById('explorer-songs-list');
-        
-        songsListEl.innerHTML = clusterSongs.map(song => `
-            <div class="songs-list-item">
-                <div>
-                    <span class="song-name">${song.track_name}</span>
-                    <span class="song-artist-text"> - ${song.artists}</span>
-                </div>
-                <span class="song-pop-badge" title="Popularitas">${song.popularity}</span>
-            </div>
-        `).join('');
+    const textCol = '#475569';
+    const gridCol = 'rgba(15, 23, 42, 0.06)';
 
-        renderClusterChart(clusterId);
-    }
+    clusterChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Danceability', 'Energy', 'Acousticness', 'Instrumentalness', 'Valence'],
+        datasets: [{
+          data: [
+            profile.danceability,
+            profile.energy,
+            profile.acousticness,
+            profile.instrumentalness,
+            profile.valence
+          ],
+          backgroundColor: `${meta.color}90`,
+          borderColor: meta.color,
+          borderWidth: 1.5,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0f172a',
+            titleColor: '#fff',
+            bodyColor: '#94a3b8',
+            borderColor: meta.color,
+            borderWidth: 1
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 1.0,
+            grid: { color: gridCol },
+            ticks: { color: textCol, font: { family: 'Plus Jakarta Sans', size: 10 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: textCol, font: { family: 'Plus Jakarta Sans', size: 10 } }
+          }
+        }
+      }
+    });
+  }
 
-    const tabBtns = document.querySelectorAll('.cluster-tab-btn');
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            const currentBtn = e.target.closest('.cluster-tab-btn');
-            currentBtn.classList.add('active');
-            
-            const clusterId = currentBtn.dataset.cluster;
-            selectExplorerCluster(clusterId);
-        });
+  document.querySelectorAll('.constellation-tab-item').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.constellation-tab-item').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderClusterProfile(tab.dataset.cluster);
+    });
+  });
+
+  let fiChart = null;
+  let tgChart = null;
+
+  function buildAnalyticsCharts() {
+    if (!window.dashboardData) return;
+    const textCol = '#475569';
+    const gridCol = 'rgba(15, 23, 42, 0.06)';
+
+    const fiLabels = Object.keys(dashboardData.feature_importances);
+    const fiValues = Object.values(dashboardData.feature_importances);
+    const fiCtx = document.getElementById('featureImportanceChart').getContext('2d');
+
+    if (fiChart) fiChart.destroy();
+    fiChart = new Chart(fiCtx, {
+      type: 'bar',
+      data: {
+        labels: fiLabels.map(l => l.replace('_ms', '').toUpperCase()),
+        datasets: [{
+          data: fiValues,
+          backgroundColor: '#15803db0',
+          hoverBackgroundColor: '#15803d',
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0f172a',
+            titleColor: '#ffffff',
+            bodyColor: '#94a3b8',
+            borderColor: '#15803d',
+            borderWidth: 1
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: gridCol },
+            ticks: { color: textCol, font: { family: 'JetBrains Mono', size: 10 } }
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: textCol, font: { family: 'Plus Jakarta Sans', size: 10, weight: 600 } }
+          }
+        }
+      }
     });
 
-    // --- 6. VISUAL ANALYTICS SUITE CHARTS ---
-    let featureImportanceChart = null;
-    let topGenresChart = null;
+    const tgLabels = dashboardData.top_genres.map(g => g.track_genre.toUpperCase());
+    const tgValues = dashboardData.top_genres.map(g => g.avg_popularity);
+    const tgCtx = document.getElementById('topGenresChart').getContext('2d');
 
-    function buildAnalyticsCharts() {
-        const isDark = document.body.classList.contains('dark-theme');
-        const textCol = isDark ? '#86868b' : '#1d1d1f';
-        const gridCol = isDark ? '#232328' : '#e5e7eb';
-
-        // 6a. Feature Importance Chart
-        const featureLabels = Object.keys(dashboardData.feature_importances);
-        const featureValues = Object.values(dashboardData.feature_importances);
-        const fiCtx = document.getElementById('featureImportanceChart').getContext('2d');
-
-        if (featureImportanceChart) featureImportanceChart.destroy();
-        featureImportanceChart = new Chart(fiCtx, {
-            type: 'bar',
-            data: {
-                labels: featureLabels.map(f => f.replace('_ms', '').replace('ness', '')),
-                datasets: [{
-                    data: featureValues,
-                    backgroundColor: '#0071e3d0',
-                    hoverBackgroundColor: '#0071e3',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        grid: { color: gridCol },
-                        ticks: { color: textCol, font: { family: 'Plus Jakarta Sans', size: 10 } },
-                        title: { display: true, text: 'Importance Weight', color: textCol, font: { family: 'Plus Jakarta Sans', size: 11 } }
-                    },
-                    y: {
-                        grid: { display: false },
-                        ticks: { color: textCol, font: { family: 'Plus Jakarta Sans', size: 11 } }
-                    }
-                }
+    if (tgChart) tgChart.destroy();
+    tgChart = new Chart(tgCtx, {
+      type: 'bar',
+      data: {
+        labels: tgLabels,
+        datasets: [{
+          data: tgValues,
+          backgroundColor: '#15803db0',
+          hoverBackgroundColor: '#15803d',
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0f172a',
+            titleColor: '#ffffff',
+            bodyColor: '#94a3b8',
+            borderColor: '#15803d',
+            borderWidth: 1
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 70,
+            grid: { color: gridCol },
+            ticks: { color: textCol, font: { family: 'JetBrains Mono', size: 10 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: {
+              color: textCol,
+              font: { family: 'Plus Jakarta Sans', size: 9 },
+              maxRotation: 45,
+              minRotation: 45
             }
-        });
+          }
+        }
+      }
+    });
+  }
 
-        // 6b. Top Popular Genres Chart
-        const genreLabels = dashboardData.top_genres.map(g => g.track_genre);
-        const genrePopularities = dashboardData.top_genres.map(g => g.avg_popularity);
-        const tgCtx = document.getElementById('topGenresChart').getContext('2d');
+  function renderCorrelationHeatmap() {
+    if (!window.dashboardData || !dashboardData.corr_data) return;
+    const table = document.getElementById('heatmap-table');
+    const { features, matrix } = dashboardData.corr_data;
 
-        if (topGenresChart) topGenresChart.destroy();
-        topGenresChart = new Chart(tgCtx, {
-            type: 'bar',
-            data: {
-                labels: genreLabels,
-                datasets: [{
-                    data: genrePopularities,
-                    backgroundColor: isDark ? '#f5f5f7bb' : '#1d1d1fcf',
-                    hoverBackgroundColor: isDark ? '#ffffff' : '#1d1d1f',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: gridCol },
-                        ticks: { color: textCol, font: { family: 'Plus Jakarta Sans', size: 10 } },
-                        title: { display: true, text: 'Rata-rata Popularitas (0-100)', color: textCol, font: { family: 'Plus Jakarta Sans', size: 11 } }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { 
-                            color: textCol,
-                            font: { family: 'Plus Jakarta Sans', size: 9 },
-                            maxRotation: 45,
-                            minRotation: 45
-                        }
-                    }
-                }
-            }
-        });
-    }
+    let html = '<thead><tr><th>Feature</th>';
+    features.forEach(f => {
+      html += `<th>${f.replace('_ms', '').substring(0, 5)}</th>`;
+    });
+    html += '</tr></thead><tbody>';
 
-    // --- 7. CORRELATION HEATMAP IMPLEMENTATION ---
-    const heatmapEl = document.getElementById('correlation-heatmap');
-    const tooltipText = document.getElementById('correlation-tooltip-text');
+    matrix.forEach((row, i) => {
+      html += `<tr><th>${features[i].replace('_ms', '')}</th>`;
+      row.forEach((val, j) => {
+        let bgColor = 'rgba(15, 23, 42, 0.03)';
+        let textColor = '#475569';
 
-    const correlationDescriptions = {
-        'energy-loudness': 'Korelasi positif yang sangat kuat (0.76). Lagu dengan tingkat energi tinggi hampir selalu direkam dengan tingkat kenyaringan volume yang keras.',
-        'energy-acousticness': 'Korelasi negatif yang sangat kuat (-0.73). Menunjukkan bahwa instrumen akustik alami cenderung memiliki energi suara yang jauh lebih tenang dibanding instrumen elektrik.',
-        'acousticness-loudness': 'Korelasi negatif yang kuat (-0.59). Menandakan volume rekaman akustik alami biasanya lebih kecil dan tidak sekencang musik elektronik/distorsi.',
-        'energy-valence': 'Korelasi positif sedang (0.3). Lagu dengan tempo dan energi tinggi cenderung memiliki nuansa suasana hati yang lebih positif/cerah.',
-        'valence-danceability': 'Korelasi positif sedang (0.4). Lagu yang bernuansa gembira dan ceria memiliki kecenderungan tinggi untuk enak didengar sambil bergoyang.',
-        'popularity-loudness': 'Korelasi positif yang sangat kecil (0.07). Menunjukkan volume kerasnya lagu memiliki dampak yang sangat minim terhadap popularitasnya.',
-        'popularity-duration_ms': 'Korelasi negatif yang sangat kecil (-0.02). Durasi lagu tidak memiliki pengaruh nyata terhadap apakah lagu itu akan populer atau tidak.',
-        'popularity-danceability': 'Korelasi positif yang lemah (0.06). Meskipun lemah, lagu yang lebih gampang dibuat bergoyang memiliki kecenderungan popularitas sedikit lebih baik.',
-        'instrumentalness-acousticness': 'Korelasi positif lemah (0.28). Sebagian besar lagu instrumental memiliki instrumen akustik (seperti piano klasik, gitar akustik) di dalamnya.'
-    };
-
-    function buildHeatmap() {
-        const features = dashboardData.corr_data.features;
-        const matrix = dashboardData.corr_data.matrix;
-        const cleanFeatures = features.map(f => f.replace('_ms', '').replace('ness', ''));
-
-        let html = '';
-        html += '<div class="heatmap-header-cell heatmap-row-header"></div>'; 
-        for (let j = 0; j < cleanFeatures.length; j++) {
-            html += `<div class="heatmap-header-cell" title="${features[j]}">${cleanFeatures[j]}</div>`;
+        if (i === j) {
+          bgColor = 'rgba(15, 23, 42, 0.1)';
+          textColor = '#0f172a';
+        } else if (val > 0) {
+          bgColor = `rgba(22, 163, 74, ${Math.min(0.75, val * 0.85)})`;
+          textColor = val > 0.4 ? '#ffffff' : '#0f172a';
+        } else if (val < 0) {
+          bgColor = `rgba(225, 29, 72, ${Math.min(0.75, Math.abs(val) * 0.85)})`;
+          textColor = val < -0.4 ? '#ffffff' : '#0f172a';
         }
 
-        const isDark = document.body.classList.contains('dark-theme');
-        const defaultTextCol = isDark ? '#f5f5f7' : '#1d1d1f';
+        html += `<td class="heatmap-cell-val" style="background:${bgColor}; color:${textColor};" title="${features[i]} vs ${features[j]}: ${val.toFixed(2)}">${val.toFixed(2)}</td>`;
+      });
+      html += '</tr>';
+    });
+    html += '</tbody>';
+    table.innerHTML = html;
+  }
 
-        for (let i = 0; i < cleanFeatures.length; i++) {
-            html += `<div class="heatmap-header-cell heatmap-row-header" title="${features[i]}">${cleanFeatures[i]}</div>`;
-            for (let j = 0; j < cleanFeatures.length; j++) {
-                const val = matrix[i][j];
-                
-                let bgColor = '';
-                let textColor = defaultTextCol;
-                
-                if (val >= 0) {
-                    const alpha = val.toFixed(2);
-                    bgColor = `rgba(0, 113, 227, ${alpha})`;
-                    if (val > 0.4) textColor = '#ffffff';
-                } else {
-                    const alpha = Math.abs(val).toFixed(2);
-                    bgColor = `rgba(215, 0, 21, ${alpha})`;
-                    if (val < -0.4) textColor = '#ffffff';
-                }
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-theme');
+      const isLight = document.body.classList.contains('light-theme');
+      themeIconElement.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+      lucide.createIcons();
 
-                html += `
-                    <div class="heatmap-cell" 
-                         style="background-color: ${bgColor}; color: ${textColor};" 
-                         data-f1="${features[i]}" 
-                         data-f2="${features[j]}" 
-                         data-val="${val.toFixed(2)}">
-                        ${val.toFixed(2)}
-                    </div>
-                `;
-            }
-        }
-        heatmapEl.innerHTML = html;
+      const activeCluster = document.querySelector('.constellation-tab-item.active');
+      if (activeCluster) renderClusterProfile(activeCluster.dataset.cluster);
+      buildAnalyticsCharts();
+    });
+  }
 
-        heatmapEl.addEventListener('mouseover', (e) => {
-            const cell = e.target.closest('.heatmap-cell');
-            if (!cell) return;
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
 
-            const f1 = cell.dataset.f1;
-            const f2 = cell.dataset.f2;
-            const val = parseFloat(cell.dataset.val);
-
-            const key1 = `${f1}-${f2}`;
-            const key2 = `${f2}-${f1}`;
-
-            let desc = `Korelasi antara <strong>${f1}</strong> dan <strong>${f2}</strong> adalah <strong>${val > 0 ? '+' : ''}${val.toFixed(2)}</strong>.`;
-            
-            if (f1 === f2) {
-                desc = `Korelasi variabel dengan dirinya sendiri selalu sempurna (+1.00).`;
-            } else if (correlationDescriptions[key1]) {
-                desc = correlationDescriptions[key1];
-            } else if (correlationDescriptions[key2]) {
-                desc = correlationDescriptions[key2];
-            } else if (Math.abs(val) < 0.1) {
-                desc += ` Hubungan linear antara kedua variabel ini sangat lemah atau hampir tidak ada.`;
-            } else if (val > 0) {
-                desc += ` Menunjukkan hubungan positif (jika satu naik, variabel lain cenderung naik).`;
-            } else {
-                desc += ` Menunjukkan hubungan terbalik/negatif (jika satu naik, variabel lain cenderung turun).`;
-            }
-
-            tooltipText.innerHTML = desc;
-        });
-
-        heatmapEl.addEventListener('mouseleave', () => {
-            tooltipText.innerHTML = 'Arahkan kursor pada salah satu sel matriks korelasi untuk melihat analisis detailnya.';
-        });
-    }
-
-    // --- 8. SMOOTH NAVIGATION SCROLLING INTERCEPTOR ---
-    const sidebarButtons = document.querySelectorAll('.sidebar-btn');
-    sidebarButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            
-            sidebarButtons.forEach(b => b.classList.remove('active'));
-            const currentBtn = e.target.closest('.sidebar-btn');
-            currentBtn.classList.add('active');
-            
-            const targetId = currentBtn.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            
-            if (targetElement) {
-                // Scroll the workspace container, not the window
-                workspaceWrapper.scrollTo({
-                    top: targetElement.offsetTop - 20, // offset for padding
-                    behavior: 'smooth'
-                });
-            }
-        });
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(sec => {
+      const top = sec.offsetTop - 140;
+      if (window.scrollY >= top) {
+        current = sec.getAttribute('id');
+      }
     });
 
-    // --- 9. DARK/LIGHT THEME TOGGLE ---
-    darkModeToggle.addEventListener('click', () => {
-        const isDark = document.body.classList.toggle('dark-theme');
-        
-        // Update button icon
-        if (isDark) {
-            themeIcon.setAttribute('data-lucide', 'sun');
-        } else {
-            themeIcon.setAttribute('data-lucide', 'moon');
-        }
-        lucide.createIcons(); // Redraw icons
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${current}`) {
+        link.classList.add('active');
+      }
+    });
+  });
 
-        // Rebuild charts with the new colors
-        buildAnalyticsCharts();
-        
-        // Redraw cluster profile chart if it exists
-        const activeTab = document.querySelector('.cluster-tab-btn.active');
-        if (activeTab) {
-            renderClusterChart(activeTab.dataset.cluster);
-        }
+  document.querySelectorAll('.bento-card, .console-deck-panel, .gauge-console-card, .math-telemetry-card, .analytics-panel').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
+    });
+  });
 
-        // Redraw heatmap
-        buildHeatmap();
+  if (window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.from('.hero-content > *', {
+      opacity: 0,
+      y: 28,
+      duration: 0.9,
+      stagger: 0.12,
+      ease: 'power3.out'
     });
 
-    // --- 10. INITIAL EXECUTION ---
-    updateSliderLabels();
-    calculatePrediction();
-    selectExplorerCluster("0");
-    buildAnalyticsCharts();
-    buildHeatmap();
+    document.querySelectorAll('.chapter-section').forEach(section => {
+      const heading = section.querySelector('.chapter-heading-box');
+      const cards = section.querySelectorAll('.double-bezel-card, .console-bezel-outer, .gauge-console-card');
+
+      if (heading) {
+        gsap.from(heading, {
+          scrollTrigger: {
+            trigger: heading,
+            start: 'top 88%'
+          },
+          opacity: 0,
+          y: 24,
+          duration: 0.8,
+          ease: 'power2.out'
+        });
+      }
+
+      if (cards.length > 0) {
+        gsap.from(cards, {
+          scrollTrigger: {
+            trigger: cards[0],
+            start: 'top 88%'
+          },
+          opacity: 0,
+          y: 28,
+          duration: 0.7,
+          stagger: 0.08,
+          ease: 'power2.out'
+        });
+      }
+    });
+  }
+
+  updateSliderLabels();
+  calculatePrediction();
+  renderClusterProfile(0);
+  buildAnalyticsCharts();
+  renderCorrelationHeatmap();
+
+  function triggerKaTeX() {
+    if (window.renderMathInElement) {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$', right: '$', display: false }
+        ],
+        throwOnError: false
+      });
+    }
+  }
+
+  triggerKaTeX();
+  setTimeout(triggerKaTeX, 300);
 });

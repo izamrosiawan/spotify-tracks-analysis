@@ -1,4 +1,4 @@
-const dashboardData = {
+window.dashboardData = {
   "top_genres": [
     {
       "track_genre": "k-pop",
