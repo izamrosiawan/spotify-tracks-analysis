@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
   }
 
-  const heroCanvas = document.getElementById('hero-canvas');
   const globalAudioToggle = document.getElementById('global-audio-toggle');
   const audioPlayIcon = document.getElementById('audio-play-icon');
   const audioStatusLabel = document.getElementById('audio-status-label');
@@ -59,85 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
     'melancholy-indie': { danceability: 0.48, energy: 0.32, loudness: -12.4, valence: 0.22, tempo: 96, acousticness: 0.86, speechiness: 0.04, instrumentalness: 0.02 },
     'hard-rock': { danceability: 0.45, energy: 0.88, loudness: -4.5, valence: 0.50, tempo: 142, acousticness: 0.01, speechiness: 0.08, instrumentalness: 0.15 }
   };
-
-  if (heroCanvas) {
-    const ctx = heroCanvas.getContext('2d');
-    let width = (heroCanvas.width = heroCanvas.offsetWidth);
-    let height = (heroCanvas.height = heroCanvas.offsetHeight);
-
-    window.addEventListener('resize', () => {
-      width = heroCanvas.width = heroCanvas.offsetWidth;
-      height = heroCanvas.height = heroCanvas.offsetHeight;
-    });
-
-    const particles = [];
-    const numParticles = 25;
-    for (let i = 0; i < numParticles; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        radius: Math.random() * 1.5 + 1,
-        speedX: (Math.random() - 0.5) * 0.25,
-        speedY: (Math.random() - 0.5) * 0.25,
-        opacity: Math.random() * 0.4 + 0.15
-      });
-    }
-
-    let phase = 0;
-    function renderCanvas() {
-      ctx.clearRect(0, 0, width, height);
-
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.x += p.speedX;
-        p.y += p.speedY;
-
-        if (p.x < 0) p.x = width;
-        if (p.x > width) p.x = 0;
-        if (p.y < 0) p.y = height;
-        if (p.y > height) p.y = 0;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(22, 163, 74, ${p.opacity * 0.6})`;
-        ctx.fill();
-
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(15, 23, 42, ${0.06 * (1 - dist / 120)})`;
-            ctx.lineWidth = 0.6;
-            ctx.stroke();
-          }
-        }
-      }
-
-      const waves = [
-        { amp: 22, freq: 0.006, speed: 0.018, color: 'rgba(22, 163, 74, 0.22)', yOffset: height * 0.62 },
-        { amp: 16, freq: 0.010, speed: 0.024, color: 'rgba(15, 23, 42, 0.10)', yOffset: height * 0.65 }
-      ];
-
-      waves.forEach(w => {
-        ctx.beginPath();
-        for (let x = 0; x <= width; x += 6) {
-          const y = w.yOffset + Math.sin(x * w.freq + phase * w.speed) * w.amp * Math.cos((x / width) * Math.PI - Math.PI / 2);
-          if (x === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.strokeStyle = w.color;
-        ctx.lineWidth = 1.8;
-        ctx.stroke();
-      });
-
-      phase += 1;
-      requestAnimationFrame(renderCanvas);
-    }
-    renderCanvas();
-  }
 
   function syncAudioEngine() {
     if (!window.cinematicAudioEngine) return;
@@ -324,6 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: { duration: 400 },
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -388,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
+          animation: { duration: 400 },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -433,6 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          animation: { duration: 400 },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -508,44 +431,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           katex.render(tex, el, { displayMode: true, throwOnError: false });
         } catch (err) {
-          console.warn('KaTeX render error:', err);
+          console.warn('KaTeX render warning:', err);
         }
-      }
-    });
-  }
-
-  if (window.gsap && window.ScrollTrigger) {
-    gsap.registerPlugin(ScrollTrigger);
-
-    document.querySelectorAll('.chapter-section').forEach(section => {
-      const heading = section.querySelector('.chapter-heading-box');
-      const cards = section.querySelectorAll('.double-bezel-card, .console-bezel-outer, .gauge-console-card');
-
-      if (heading) {
-        gsap.from(heading, {
-          scrollTrigger: {
-            trigger: heading,
-            start: 'top 88%'
-          },
-          opacity: 0,
-          y: 24,
-          duration: 0.8,
-          ease: 'power2.out'
-        });
-      }
-
-      if (cards.length > 0) {
-        gsap.from(cards, {
-          scrollTrigger: {
-            trigger: cards[0],
-            start: 'top 88%'
-          },
-          opacity: 0,
-          y: 28,
-          duration: 0.7,
-          stagger: 0.08,
-          ease: 'power2.out'
-        });
       }
     });
   }
@@ -557,5 +444,5 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCorrelationHeatmap();
 
   renderAllKaTeX();
-  setTimeout(renderAllKaTeX, 250);
+  setTimeout(renderAllKaTeX, 200);
 });
