@@ -168,6 +168,35 @@ document.addEventListener('DOMContentLoaded', () => {
         tierExplanationText.textContent = 'Eksperimental atau instrumen organik dengan audiens pendengar spesifik.';
       }
     }
+
+    if (dashboardData.sample_songs && dashboardData.sample_songs.length > 0) {
+      let bestMatch = null;
+      let minDistance = Infinity;
+
+      dashboardData.sample_songs.forEach(song => {
+        const dDance = (song.danceability - danceability) * 1.2;
+        const dEnergy = (song.energy - energy) * 1.2;
+        const dValence = (song.valence - valence) * 1.0;
+        const dAcous = (song.acousticness - acousticness) * 1.0;
+        const dTempo = ((song.tempo - tempo) / 100) * 0.8;
+        const dist = Math.sqrt(dDance*dDance + dEnergy*dEnergy + dValence*dValence + dAcous*dAcous + dTempo*dTempo);
+        if (dist < minDistance) {
+          minDistance = dist;
+          bestMatch = song;
+        }
+      });
+
+      if (bestMatch) {
+        const matchNameEl = document.getElementById('match-track-name');
+        const matchArtistEl = document.getElementById('match-artists');
+        const matchSimEl = document.getElementById('match-similarity');
+        const similarity = Math.max(75, Math.min(99.4, Math.round((1 - minDistance / 2.2) * 1000) / 10));
+
+        if (matchNameEl) matchNameEl.textContent = bestMatch.track_name;
+        if (matchArtistEl) matchArtistEl.textContent = `${bestMatch.artists} (${bestMatch.track_genre})`;
+        if (matchSimEl) matchSimEl.textContent = `${similarity.toFixed(1)}% Match`;
+      }
+    }
   }
 
   sliderIds.forEach(id => {
