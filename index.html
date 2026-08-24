@@ -431,8 +431,8 @@
           <i data-lucide="grid" style="color: var(--color-primary);"></i>
           <span>Pearson Audio Correlation Matrix</span>
         </div>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.4rem;">
-          Menunjukkan korelasi linear antar 11 fitur audio. Warna hijau mengindikasikan korelasi positif, sedangkan merah korelasi negatif.
+        <p id="heatmap-subtext" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.4rem; min-height: 1.4rem;">
+          Arahkan kursor ke sel matriks untuk menginspeksi koefisien Pearson dan interpretasi hubungan linier antar-fitur.
         </p>
         <div style="overflow-x: auto;">
           <table class="heatmap-scroll-table" id="heatmap-table"></table>

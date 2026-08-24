@@ -427,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
     html += '</tr></thead><tbody>';
 
     for (let i = 0; i < features.length; i++) {
-      html += `<tr><td style="font-weight: 700; text-align: left;">${features[i].replace('_ms', '')}</td>`;
+      html += `<tr><td style="font-weight: 700; text-align: left; background: var(--bg-surface-elevated);">${features[i].replace('_ms', '')}</td>`;
       for (let j = 0; j < features.length; j++) {
         const val = matrix[i][j];
         let bgColor = 'transparent';
@@ -440,12 +440,32 @@ document.addEventListener('DOMContentLoaded', () => {
           bgColor = `rgba(220, 38, 38, ${Math.min(Math.abs(val) * 0.8, 0.85)})`;
           if (Math.abs(val) > 0.45) textColor = '#ffffff';
         }
-        html += `<td style="background-color: ${bgColor}; color: ${textColor};" title="${features[i]} vs ${features[j]}: ${val.toFixed(3)}">${val.toFixed(2)}</td>`;
+
+        const delay = (i * 11 + j) * 8;
+        html += `<td class="heatmap-val-cell" style="background-color: ${bgColor}; color: ${textColor}; animation-delay: ${delay}ms;" data-f1="${features[i]}" data-f2="${features[j]}" data-val="${val.toFixed(3)}" title="${features[i]} vs ${features[j]}: ${val.toFixed(3)}">${val.toFixed(2)}</td>`;
       }
       html += '</tr>';
     }
     html += '</tbody>';
     table.innerHTML = html;
+
+    // Attach interactive hover inspector
+    table.querySelectorAll('.heatmap-val-cell').forEach(cell => {
+      cell.addEventListener('mouseenter', () => {
+        const f1 = cell.dataset.f1.replace('_ms', '');
+        const f2 = cell.dataset.f2.replace('_ms', '');
+        const val = parseFloat(cell.dataset.val);
+        const subtext = document.getElementById('heatmap-subtext');
+        if (subtext) {
+          let interp = 'Korelasi Netral / Independen';
+          if (val >= 0.7) interp = 'Korelasi Positif Sangat Kuat (Ko-okurensi Kuat)';
+          else if (val >= 0.4) interp = 'Korelasi Positif Moderat';
+          else if (val <= -0.6) interp = 'Korelasi Negatif / Invers Sangat Kuat';
+          else if (val <= -0.3) interp = 'Korelasi Negatif Moderat';
+          subtext.innerHTML = `<span style="color: var(--color-primary); font-weight: 700;">${f1.toUpperCase()} &harr; ${f2.toUpperCase()}</span> : Koefisien Pearson <strong>${val > 0 ? '+' : ''}${val.toFixed(3)}</strong> &bull; <span style="color: var(--text-primary); font-weight: 600;">${interp}</span>`;
+        }
+      });
+    });
   }
 
   function renderAllKaTeX() {
